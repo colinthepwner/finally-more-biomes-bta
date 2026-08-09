@@ -1,5 +1,6 @@
 package com.betteroplenty.block;
 
+import com.betteroplenty.BOPIdManifest;
 import com.betteroplenty.BetterOPlenty;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.BlockLogic;
@@ -42,8 +43,9 @@ public final class BOPBones {
 			block -> new BlockLogic(block, Materials.STONE));
 
 		BetterOPlenty.LOGGER.info(
-			"Registered {} BOP bone blocks (ids 2120-2122); WorldGenBoneSpine builds them into "
-				+ "Boneyard's spines.", all().size());
+			"Registered {} BOP bone blocks (ids {}); WorldGenBoneSpine builds them into "
+				+ "Boneyard's spines.", all().size(),
+			BOPIdManifest.span(SMALL.id(), MEDIUM.id(), LARGE.id()));
 	}
 
 	@NotNull

@@ -1,5 +1,6 @@
 package com.betteroplenty.block;
 
+import com.betteroplenty.BOPIdManifest;
 import com.betteroplenty.BetterOPlenty;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.BlockLogic;
@@ -107,9 +108,11 @@ public final class BOPNether {
 			.build("mushroom_stem", 2165,
 				block -> new BlockLogicGiantMushroom(block, () -> Blocks.MUSHROOM_BROWN));
 
-		BetterOPlenty.LOGGER.info("Registered {} BOP Nether blocks (ids 2160-2165): the Undergarden's "
+		BetterOPlenty.LOGGER.info("Registered {} BOP Nether blocks (ids {}): the Undergarden's "
 			+ "overgrown netherrack, giant mushroom caps and stem, Bloody Heap's flesh, and the "
-			+ "wither wart.", 6);
+			+ "wither wart.", 6,
+			BOPIdManifest.span(OVERGROWN_NETHERRACK.id(), WITHER_WART.id(), FLESH.id(),
+				MUSHROOM_CAP_BROWN.id(), MUSHROOM_CAP_RED.id(), MUSHROOM_STEM.id()));
 	}
 
 	@NotNull

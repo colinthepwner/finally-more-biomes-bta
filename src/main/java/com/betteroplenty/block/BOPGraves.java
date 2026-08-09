@@ -1,5 +1,6 @@
 package com.betteroplenty.block;
 
+import com.betteroplenty.BOPIdManifest;
 import com.betteroplenty.BetterOPlenty;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.Blocks;
@@ -34,8 +35,9 @@ public final class BOPGraves {
 			.build("grave_top", 2124, block -> BlockLogicGrave.upper(block, () -> GRAVE));
 
 		BetterOPlenty.LOGGER.info(
-			"Registered {} BOP grave blocks (ids 2123-2124); all six BOP Nether biomes set "
-				+ "gravesPerChunk = 1.", all().size());
+			"Registered {} BOP grave blocks (ids {}); all six BOP Nether biomes set "
+				+ "gravesPerChunk = 1.", all().size(),
+			BOPIdManifest.span(GRAVE.id(), GRAVE_TOP.id()));
 	}
 
 	@NotNull

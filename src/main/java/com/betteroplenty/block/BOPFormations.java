@@ -1,5 +1,6 @@
 package com.betteroplenty.block;
 
+import com.betteroplenty.BOPIdManifest;
 import com.betteroplenty.BetterOPlenty;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.BlockLogic;
@@ -51,9 +52,9 @@ public final class BOPFormations {
 				.hangingFromAbove());
 
 		BetterOPlenty.LOGGER.info(
-			"Registered {} BOP stone-formation blocks (ids 2038-2039); both counters run on upstream's "
+			"Registered {} BOP stone-formation blocks (ids {}); both counters run on upstream's "
 				+ "defaults of 3 stalagmites and 6 stalactites per chunk in EVERY biome.",
-			CROSS_MODELS.size());
+			CROSS_MODELS.size(), BOPIdManifest.span(STALAGMITE.id(), STALACTITE.id()));
 	}
 
 	@NotNull

@@ -1,5 +1,6 @@
 package com.betteroplenty.block;
 
+import com.betteroplenty.BOPIdManifest;
 import com.betteroplenty.BetterOPlenty;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.BlockLogic;
@@ -96,8 +97,10 @@ public final class BOPCorals {
 		CORAL_GLOW = build(coral.clone().setLuminance(10), "coral_glow", 1837, "glowcoral", VISIBLE,
 			block -> new BlockLogicBOPCoral(block, Materials.WATER, BOPCorals::seaBed, null, null));
 
-		BetterOPlenty.LOGGER.info("Registered {} BOP coral and kelp blocks (ids 1830-1837).",
-			CROSS_MODELS.size());
+		BetterOPlenty.LOGGER.info("Registered {} BOP coral and kelp blocks (ids {}).",
+			CROSS_MODELS.size(),
+			BOPIdManifest.span(KELP_BOTTOM.id(), KELP_MIDDLE.id(), KELP_TOP.id(), KELP_SINGLE.id(),
+				CORAL_PINK.id(), CORAL_ORANGE.id(), CORAL_BLUE.id(), CORAL_GLOW.id()));
 
 		BetterOPlenty.LOGGER.warn("Glow coral has no recipe yet: its only upstream use is ambrosia "
 			+ "(core/BOPCrafting.java:269), whose nine ingredients include a potion -- cut content -- "

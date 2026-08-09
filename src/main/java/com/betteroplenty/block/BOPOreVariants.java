@@ -1,5 +1,6 @@
 package com.betteroplenty.block;
 
+import com.betteroplenty.BOPIdManifest;
 import com.betteroplenty.BetterOPlenty;
 import com.betteroplenty.item.BOPItems;
 import net.minecraft.core.block.Block;
@@ -79,6 +80,7 @@ public final class BOPOreVariants {
 		BlockBuilder builder = new BlockBuilder(BetterOPlenty.MOD_ID);
 		int id = FIRST_ID;
 		int count = 0;
+		List<Integer> variantIds = new ArrayList<>();
 
 		Object[][] gems = {
 			{"amethyst", BOPBlocks.AMETHYST_ORE, (Supplier<Item>) () -> BOPItems.AMETHYST},
@@ -125,6 +127,7 @@ public final class BOPOreVariants {
 					.build(key + "_ore_" + host.getKey(), id++,
 						block -> new BlockLogicOreGem(block, Materials.STONE, drop));
 				BOPBlocks.pickaxeLevel(variant, 2);
+				variantIds.add(variant.id());
 				byHost.put(host.getValue().get().id(), variant);
 				BY_KEY.put(key + "_" + host.getKey(), variant);
 				if (generates.contains(host.getKey())) {
@@ -137,9 +140,10 @@ public final class BOPOreVariants {
 		}
 
 		BetterOPlenty.LOGGER.info(
-			"Registered {} gem-ore variants across {} host rocks, ids {}-{}; BOP gems now generate "
+			"Registered {} gem-ore variants across {} host rocks, ids {}; BOP gems now generate "
 				+ "in basalt, granite, limestone and permafrost as well as stone.",
-			count, HOSTS.size(), FIRST_ID, id - 1);
+			count, HOSTS.size(),
+			BOPIdManifest.span(variantIds.stream().mapToInt(Integer::intValue).toArray()));
 	}
 
 	public static Block<?> variant(String gemKey, String hostKey) {

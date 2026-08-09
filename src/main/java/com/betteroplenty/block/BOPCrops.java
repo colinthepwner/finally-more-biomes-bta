@@ -1,5 +1,6 @@
 package com.betteroplenty.block;
 
+import com.betteroplenty.BOPIdManifest;
 import com.betteroplenty.BetterOPlenty;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.tag.BlockTags;
@@ -23,7 +24,7 @@ public final class BOPCrops {
 
 			.build("turnip_crop", 2210, BlockLogicTurnip::new);
 
-		BetterOPlenty.LOGGER.info("Registered the turnip crop (id 2210).");
+		BetterOPlenty.LOGGER.info("Registered the turnip crop (id {}).", TURNIP_CROP.id());
 	}
 
 	@NotNull

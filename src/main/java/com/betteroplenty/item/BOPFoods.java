@@ -1,5 +1,6 @@
 package com.betteroplenty.item;
 
+import com.betteroplenty.BOPIdManifest;
 import com.betteroplenty.BetterOPlenty;
 import com.betteroplenty.fluid.BOPDamageTypes;
 import net.minecraft.core.item.Item;
@@ -109,9 +110,11 @@ public final class BOPFoods {
 		TURNIP = builder.clone().build(food("turnip", id++, 3, 6));
 
 		BetterOPlenty.LOGGER.info(
-			"Registered {} BOP foods, ids {}-{}, on BTA's heal model (hunger -> healAmount 1:1, "
+			"Registered {} BOP foods, ids {}, on BTA's heal model (hunger -> healAmount 1:1, "
 				+ "saturation dropped, 4 return their container).",
-			12, FIRST_ID, id - 1);
+			12, BOPIdManifest.span(BERRIES.id, SHROOM_POWDER.id, WILD_CARROTS.id,
+				SUNFLOWER_SEEDS.id, SALAD_FRUIT.id, SALAD_VEGGIE.id, SALAD_SHROOM.id, EARTH.id,
+				PERSIMMON.id, FILLED_HONEYCOMB.id, AMBROSIA.id, TURNIP.id));
 	}
 
 	private static ItemFood food(String name, int id, int heal, int ticks) {

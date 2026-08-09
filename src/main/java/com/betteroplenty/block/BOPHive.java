@@ -1,5 +1,6 @@
 package com.betteroplenty.block;
 
+import com.betteroplenty.BOPIdManifest;
 import com.betteroplenty.BetterOPlenty;
 import com.betteroplenty.item.BOPFoods;
 import net.minecraft.core.block.Block;
@@ -67,8 +68,10 @@ public final class BOPHive {
 		CUBE_TEXTURES.add("betteroplenty:block/honeyblock");
 
 		BetterOPlenty.LOGGER.info(
-			"Registered {} BOP hive blocks and the honey block (ids 2100-2104); their only source is "
-				+ "WorldGenHive, in BOP's six Nether biomes.", 4);
+			"Registered {} BOP hive blocks and the honey block (ids {}); their only source is "
+				+ "WorldGenHive, in BOP's six Nether biomes.", 4,
+			BOPIdManifest.span(HONEYCOMB.id(), HIVE.id(), HONEYCOMB_EMPTY.id(),
+				HONEYCOMB_FILLED.id(), HONEY_BLOCK.id()));
 	}
 
 	@NotNull
