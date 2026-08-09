@@ -1,0 +1,49 @@
+{
+	"schemaVersion": 1,
+	"id": "betteroplenty",
+	"version": "${version}",
+	"name": "Better O' Plenty",
+	"description": "Adds dozens of new biomes, blocks, plants and mobs to Better than Adventure! 8.0. A port of Glitchfiend's Biomes O' Plenty, which is licensed CC BY-NC-ND 4.0. Ships none of BOP's art - drop your own copy of BOP into the game directory and the mod reads the textures out of it. See NOTICE.md.",
+	"authors": [
+		"Colin (BTA port)",
+		"Forstride (Biomes O' Plenty)",
+		"Adubbz (Biomes O' Plenty)",
+		"Amnet (Biomes O' Plenty)",
+		"ted80 (Biomes O' Plenty)"
+	],
+	"contributors": [
+		"gamax92 (Biomes O' Plenty credits)",
+		"enchilado (Biomes O' Plenty credits)",
+		"Tim Rurkowski (Biomes O' Plenty credits)",
+		"Soaryn (Biomes O' Plenty credits)"
+	],
+	"contact": {
+		"homepage": "https://www.minecraftforum.net/topic/1495041-"
+	},
+	"icon": "icon.png",
+	"license": "CC-BY-NC-ND-4.0",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.betteroplenty.BetterOPlenty"
+		],
+		"initModels": [
+			"com.betteroplenty.client.BetterOPlentyClient"
+		],
+		"client": [
+			"com.betteroplenty.client.BetterOPlentyClientInit"
+		]
+	},
+	"mixins": [
+		"betteroplenty.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=${fabricloader}",
+		"halplibe": ">=${halplibe}",
+		"minecraft": "*",
+		"java": ">=${java}"
+	},
+	"suggests": {
+		"modmenu": ">=${modmenu}"
+	}
+}

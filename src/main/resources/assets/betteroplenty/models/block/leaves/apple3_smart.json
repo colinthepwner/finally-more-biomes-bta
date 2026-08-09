@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/leaves/leaves_smart",
+  "textures": {
+    "all": "betteroplenty:block/leaves_apple3_fancy"
+  }
+}

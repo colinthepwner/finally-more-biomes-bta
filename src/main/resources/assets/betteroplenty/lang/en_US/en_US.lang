@@ -1,0 +1,1192 @@
+# Block keys are DOT-separated, not underscored: HalpLibe's BlockBuilder.build(name, id, logic)
+# turns "amethyst_ore" into the translation key `betteroplenty.amethyst.ore` and keeps the
+# underscored form only as the namespace id. BTA's own blocks read the same way (tile.log.oak.name).
+# An underscored key here localises nothing and shows the raw string in game -- com.betteroplenty
+# .BOPLang checks every registered block and item at client start and names anything missing.
+# Item keys are NOT rewritten: ItemBuilder keeps them as given.
+
+# ---------------------------------------------------------------------------------------------
+# DESCRIPTIONS FOLLOW BTA'S SCHEME WHERE BTA HAS ONE. Rule 6 applied to voice: where BTA already
+# says a thing a settled way, a ported block says it that way too, or it reads as an import.
+# Swept 2026-07-27; PORTING-STANDARD.md section 7 is the authority, this is the index.
+#
+#   ore              A chunk of ruby embedded in stone.          <- tile.ore.diamond.stone.desc
+#   storage block    A solid block of ruby.                      <- tile.block.olivine.desc
+#   log              A log from a willow tree.                   <- tile.log.oak.desc
+#   leaves           Leaves from a willow tree.                  <- tile.leaves.oak.desc
+#   sapling          Plant to grow a willow tree.                <- tile.sapling.oak.desc
+#   stone / cobble   A block of solid red rock. / Red rock,      <- tile.basalt.desc,
+#                    smashed apart and reconstituted.               tile.cobble.basalt.desc
+#   brick            Stacked bricks of red rock.                 <- tile.brick.clay.desc
+#   fluid            Spring water that flows when placed.        <- tile.fluid.water.flowing.desc
+#   bucket           A bucket full of steaming spring water.     <- item.bucket.iron.water.desc
+#   tool             Pick some stone with this amethyst tool.    <- item.tool.pickaxe.iron.desc
+#   armour           A sturdy amethyst helmet.                   <- item.armor.helmet.iron.desc
+#
+# A SECOND SENTENCE ONLY WHERE IT SAYS SOMETHING A PLAYER CANNOT OTHERWISE FIND OUT -- which BTA
+# itself does 75 times in 745 -- never for decoration. In practice: which plank a log cuts into,
+# which canopies take the biome tint, what standing in a fluid does to you, where a sapling refuses
+# to root. Applying this cost some better-written lines; they said nothing a player could act on.
+#
+# TWO THINGS BTA NEVER DOES, so neither do we any more:
+#   - It never names a tool tier in a description. Zero occurrences in 745. The ore lines used to
+#     end "An iron pick will free it"; the gate is still enforced in code and recorded in the atlas,
+#     which is where that belongs.
+#   - It never counts out a crafting recipe. "Nine rubies, packed for storage" is now "A solid block
+#     of ruby"; the recipe is in the recipe book.
+#
+# NOT CONVERTED, because BTA has no scheme to converge on -- its own are ad-hoc one-liners
+# ("A beautiful yellow flower.", "A tasty red mushroom. Good for stew."): flowers, mushrooms,
+# grasses, corals, the BOP soils and terrain blocks, and the gem items, which already sit in BTA's
+# register. Do not flatten these into a fake scheme; there is nothing to match.
+# ---------------------------------------------------------------------------------------------
+
+tile.betteroplenty.spike.cube.name=Spike Cube
+tile.betteroplenty.spike.plant.name=Spike Plant
+tile.betteroplenty.spike.custom.name=Spike Custom Shape
+tile.betteroplenty.lavender.name=Lavender
+worldType.betteroplenty.bop.name=Better O' Plenty
+biome.betteroplenty.bop.lavender_fields=Lavender Fields
+tile.betteroplenty.wheat.grass.name=Wheat Grass
+tile.betteroplenty.amethyst.ore.name=Amethyst Ore
+tile.betteroplenty.amethyst.block.name=Block of Amethyst
+item.betteroplenty.amethyst.name=Amethyst
+
+# The projectile family. bta-substitutions.tsv:228, 234.
+item.betteroplenty.mudball.name=Mudball
+# The scythe, all seven tiers. bta-substitutions.tsv:231; the area harvest is the
+# whole point of the tool, so every tier says how far it reaches.
+item.betteroplenty.wood_scythe.name=Wooden Scythe
+item.betteroplenty.stone_scythe.name=Stone Scythe
+item.betteroplenty.iron_scythe.name=Iron Scythe
+item.betteroplenty.gold_scythe.name=Golden Scythe
+item.betteroplenty.diamond_scythe.name=Diamond Scythe
+item.betteroplenty.mud_scythe.name=Mud Scythe
+item.betteroplenty.amethyst_scythe.name=Amethyst Scythe
+item.betteroplenty.steel_scythe.name=Steel Scythe
+item.betteroplenty.dart_blower.name=Dart Blower
+item.betteroplenty.dart.name=Dart
+
+# Amethyst gear. Upstream BOPCrafting.java:202-215; a tier between iron and steel, handles made
+# of iron ingots as upstream had them.
+item.betteroplenty.amethyst_pickaxe.name=Amethyst Pickaxe
+item.betteroplenty.amethyst_shovel.name=Amethyst Shovel
+item.betteroplenty.amethyst_axe.name=Amethyst Axe
+item.betteroplenty.amethyst_sword.name=Amethyst Sword
+item.betteroplenty.amethyst_hoe.name=Amethyst Hoe
+item.betteroplenty.amethyst_helmet.name=Amethyst Helmet
+item.betteroplenty.amethyst_chestplate.name=Amethyst Chestplate
+item.betteroplenty.amethyst_leggings.name=Amethyst Leggings
+item.betteroplenty.amethyst_boots.name=Amethyst Boots
+
+# Mud gear. Upstream BOPCrafting.java:189-197; a joke tier BELOW wood and leather, made of nothing
+# but mudballs and sticks. Names are upstream's own -- it calls every piece "Muddy", not "Mud".
+item.betteroplenty.mud_pickaxe.name=Muddy Pickaxe
+item.betteroplenty.mud_shovel.name=Muddy Shovel
+item.betteroplenty.mud_axe.name=Muddy Axe
+item.betteroplenty.mud_sword.name=Muddy Sword
+item.betteroplenty.mud_hoe.name=Muddy Hoe
+item.betteroplenty.record_traversia.name=Music Disc
+item.betteroplenty.record_muddy.name=Music Disc
+item.betteroplenty.dull_flower_band.name=Dull Flower Band
+item.betteroplenty.plain_flower_band.name=Plain Flower Band
+item.betteroplenty.lush_flower_band.name=Lush Flower Band
+item.betteroplenty.exotic_flower_band.name=Exotic Flower Band
+item.betteroplenty.mud_helmet.name=Muddy Helmet
+item.betteroplenty.mud_chestplate.name=Muddy Chestplate
+item.betteroplenty.mud_leggings.name=Muddy Leggings
+item.betteroplenty.mud_boots.name=Muddy Boots
+
+# Wading boots and flippers. bta-substitutions.tsv:236 -- loot-only, zero protection, the whole
+# point is the movement hook (see the mixins, not the armour stats).
+item.betteroplenty.wading_boots.name=Wading Boots
+item.betteroplenty.flippers.name=Flippers
+
+# Wood sets. THREE blocks per species -- planks are BTA's painted planks, mapped by colour, so
+# there is no jacaranda plank to name. BOP's own names live in biomesoplenty.lang under
+# tile.bop.wood4.jacarandaWood / leaves2.jacaranda / saplings.jacarandaSapling.
+tile.betteroplenty.jacaranda.log.name=Jacaranda Log
+tile.betteroplenty.jacaranda.leaves.name=Jacaranda Leaves
+tile.betteroplenty.jacaranda.sapling.name=Jacaranda Sapling
+
+# Descriptions. BTA shows these on the Ctrl-held tooltip; it ships 273 of them, so every
+# modded block and item gets one -- an item with no .desc reads as unfinished next to vanilla.
+tile.betteroplenty.lavender.desc=A fragrant purple bloom. Grind it into purple dye.
+tile.betteroplenty.wheat.grass.desc=Tall golden grass. Shears will keep it intact.
+tile.betteroplenty.amethyst.ore.desc=A violet crystal embedded in stone.
+tile.betteroplenty.amethyst.block.desc=A solid block of amethyst.
+item.betteroplenty.amethyst.desc=A violet gem, cut from stone deep underground.
+item.betteroplenty.mudball.desc=A handful of packed mud. Throw it, or press four back into a block.
+item.betteroplenty.wood_scythe.desc=Clears the grass and flowers a block around you.
+item.betteroplenty.stone_scythe.desc=Clears the grass and flowers a block around you.
+item.betteroplenty.iron_scythe.desc=Clears two blocks around you, leaves included.
+item.betteroplenty.gold_scythe.desc=Clears two blocks around you, leaves included.
+item.betteroplenty.diamond_scythe.desc=Clears three blocks around you, leaves included.
+item.betteroplenty.mud_scythe.desc=Clears a block around you, and not for long.
+item.betteroplenty.amethyst_scythe.desc=Clears three blocks around you, and dulls slower than diamond.
+item.betteroplenty.steel_scythe.desc=Clears four blocks around you, and keeps on clearing.
+item.betteroplenty.dart_blower.desc=A tube of river cane. Fires darts, sixty-three times.
+item.betteroplenty.dart.desc=A thorn on a cane shaft. Ammunition for a dart blower.
+item.betteroplenty.amethyst_pickaxe.desc=Pick some stone with this amethyst tool.
+item.betteroplenty.amethyst_shovel.desc=Dig up the dirt with this amethyst tool.
+item.betteroplenty.amethyst_axe.desc=Chop some trees with this amethyst tool.
+item.betteroplenty.amethyst_sword.desc=Slay pesky monsters with this sharp amethyst blade.
+item.betteroplenty.amethyst_hoe.desc=Till the land with this amethyst tool.
+item.betteroplenty.amethyst_helmet.desc=A sturdy amethyst helmet. The full set ignores bedrock and spikes.
+item.betteroplenty.amethyst_chestplate.desc=A sturdy amethyst chestplate. The full set ignores bedrock and spikes.
+item.betteroplenty.amethyst_leggings.desc=A pair of sturdy amethyst leggings. The full set ignores bedrock and spikes.
+item.betteroplenty.amethyst_boots.desc=A pair of sturdy amethyst boots. The full set ignores bedrock and spikes.
+item.betteroplenty.mud_pickaxe.desc=Dried mud on a stick. It will not outlast the stone it chips.
+item.betteroplenty.mud_shovel.desc=Dried mud on a stick. Barely better than your hands.
+item.betteroplenty.mud_axe.desc=Dried mud on a stick. The tree will probably win.
+item.betteroplenty.mud_sword.desc=Dried mud on a stick. Point the blunt end at your enemy and hope.
+item.betteroplenty.mud_hoe.desc=Dried mud on a stick. At least the soil is already soft.
+item.betteroplenty.record_traversia.desc=A disc of Traversia. Put it in a jukebox.
+item.betteroplenty.record_muddy.desc=A disc caked in dried mud. It still plays.
+item.betteroplenty.dull_flower_band.desc=Clover woven into a ring. It keeps nothing out and was never meant to.
+item.betteroplenty.plain_flower_band.desc=Clover and cosmos. The first band worth showing anyone.
+item.betteroplenty.lush_flower_band.desc=Clover, cosmos and violets, thick enough to smell across a room.
+item.betteroplenty.exotic_flower_band.desc=Four flowers and no restraint. Protects you from precisely nothing.
+item.betteroplenty.mud_helmet.desc=A helmet caked from swamp mud. The full set does not drown.
+item.betteroplenty.mud_chestplate.desc=A chestplate caked from swamp mud. The full set does not drown.
+item.betteroplenty.mud_leggings.desc=Leggings caked from swamp mud. The full set does not drown.
+item.betteroplenty.mud_boots.desc=Boots caked from swamp mud. The full set does not drown.
+item.betteroplenty.wading_boots.desc=Tall boots built for wading, not walking. Ash and rotten flesh no longer drag at your feet.
+item.betteroplenty.flippers.desc=Broad rubber fins, worn on the feet. Swim noticeably faster while they are on.
+tile.betteroplenty.spike.cube.desc=A Phase 0 test block. It should not be in your world.
+tile.betteroplenty.spike.plant.desc=A Phase 0 test plant. It should not be in your world.
+tile.betteroplenty.spike.custom.desc=A Phase 0 test shape. It should not be in your world.
+
+tile.betteroplenty.jacaranda.log.desc=A log from a jacaranda tree. Cut it into pink planks.
+tile.betteroplenty.jacaranda.leaves.desc=Leaves from a jacaranda tree.
+tile.betteroplenty.jacaranda.sapling.desc=Plant to grow a jacaranda tree.
+
+# World type. The Create World screen reads .name for the button and .desc for the blurb.
+worldType.betteroplenty.bop.desc=Better O' Plenty's biomes, woven into the overworld.
+
+# Biomes.
+
+# ---------------------------------------------------------------------------------------------
+# Wood sets, species 2-14. Three blocks each (log, leaves, sapling) -- planks are BTA's painted
+# planks mapped by colour, so no species has a plank name. Maple and the two autumn species have
+# no log at all: upstream grows them on a vanilla trunk, so they are leaves and a sapling only.
+#
+# Names are upstream's own, from biomesoplenty.lang -- including its oddities. Dead wood's leaves
+# and sapling are "Dying" rather than "Dead" (tile.bop.leaves1.dead / saplings.deadSapling), and
+# the species keyed `holy` is called Loftwood everywhere a player can see it.
+#
+# LOGS ARE "<Species> Log", NOT "<Species> Wood". Upstream is 1.6.4, where the block is called Wood;
+# BTA renamed it, and its own tile.lang is uniformly "Oak Log", "Pine Log", "Birch Log", "Palm Log".
+# A "Fir Wood" sitting in the creative menu beside "Pine Log" reads as another mod's block, so the
+# port follows BTA rather than upstream here -- rule 6, applied to naming. This also resolves the
+# loftwood log, whose upstream string is the doubled "Loftwood Wood": it is "Loftwood Log".
+tile.betteroplenty.acacia.log.name=Acacia Log
+tile.betteroplenty.acacia.leaves.name=Acacia Leaves
+tile.betteroplenty.acacia.sapling.name=Acacia Sapling
+tile.betteroplenty.dark.log.name=Dark Log
+tile.betteroplenty.dark.leaves.name=Dark Leaves
+tile.betteroplenty.dark.sapling.name=Dark Sapling
+tile.betteroplenty.dead.log.name=Dead Log
+tile.betteroplenty.dead.leaves.name=Dying Leaves
+tile.betteroplenty.dead.sapling.name=Dying Sapling
+tile.betteroplenty.fir.log.name=Fir Log
+tile.betteroplenty.fir.leaves.name=Fir Leaves
+tile.betteroplenty.fir.sapling.name=Fir Sapling
+tile.betteroplenty.hellbark.log.name=Hellbark Log
+tile.betteroplenty.hellbark.leaves.name=Hellbark Leaves
+tile.betteroplenty.hellbark.sapling.name=Hellbark Sapling
+tile.betteroplenty.holy.log.name=Loftwood Log
+tile.betteroplenty.holy.leaves.name=Loftwood Leaves
+tile.betteroplenty.holy.sapling.name=Loftwood Sapling
+tile.betteroplenty.magic.log.name=Magic Log
+tile.betteroplenty.magic.leaves.name=Magic Leaves
+tile.betteroplenty.magic.sapling.name=Magic Sapling
+tile.betteroplenty.mangrove.log.name=Mangrove Log
+tile.betteroplenty.mangrove.leaves.name=Mangrove Leaves
+tile.betteroplenty.mangrove.sapling.name=Mangrove Sapling
+tile.betteroplenty.redwood.log.name=Redwood Log
+tile.betteroplenty.redwood.leaves.name=Redwood Leaves
+tile.betteroplenty.redwood.sapling.name=Redwood Sapling
+tile.betteroplenty.willow.log.name=Willow Log
+tile.betteroplenty.willow.leaves.name=Willow Leaves
+tile.betteroplenty.willow.sapling.name=Willow Sapling
+tile.betteroplenty.maple.leaves.name=Maple Leaves
+tile.betteroplenty.maple.sapling.name=Maple Sapling
+tile.betteroplenty.orangeautumn.leaves.name=Orange Autumn Leaves
+tile.betteroplenty.orangeautumn.sapling.name=Orange Autumn Sapling
+tile.betteroplenty.yellowautumn.leaves.name=Yellow Autumn Leaves
+tile.betteroplenty.yellowautumn.sapling.name=Yellow Autumn Sapling
+tile.betteroplenty.persimmon.leaves.name=Persimmon Leaves
+tile.betteroplenty.persimmon.sapling.name=Persimmon Sapling
+
+# Wood set descriptions.
+#
+# LOG DESCRIPTIONS FOLLOW BTA'S OWN FORM: "A log from a <species> tree." -- its wood sets are a
+# matched family (tile.log.oak.desc "A log from an oak tree.", tile.leaves.oak.desc "Leaves from an
+# oak tree.", tile.sapling.oak.desc "Plant to grow an oak tree."), and a BOP log that described
+# itself differently read as another mod's block. Rule 6 applied to voice, same as the "<Species>
+# Log" naming above. Each then adds which BTA plank it cuts into, because that mapping is the only
+# way to find out in game; two-sentence descriptions are within BTA's own style, 75 of its 745 are.
+#
+# LEAVES FOLLOW THE MATCHING FORM: "Leaves from a <species> tree." Same reason, and the same rule
+# for the second sentence -- it is there only where it says something a player cannot otherwise
+# find out, never for decoration:
+#
+#   - the FOUR species whose leaves take the biome foliage tint say so (acacia, mangrove, redwood,
+#     willow -- BlockBOPColorizedLeaves; palm and pine are in that upstream array too but are BTA's,
+#     so they are not here). The others render their texture as painted and say nothing.
+#   - persimmon says its fruit has yet to set, because that is a deliberate gap in the port.
+#   - bamboo is not a tree, so it does not claim to be one; BTA has the same case in
+#     tile.leaves.shrub.desc, "Leaves from a shrub." It also states its decay rule, which is its
+#     own (BlockLogicLeavesBamboo looks for a stalk, not a log).
+#   - apple states its fruit mechanic. BTA's own fruiting leaf reads the same way:
+#     tile.leaves.cherry.flowering.desc, "Leaves from a cherry tree that are budding with fruit."
+#
+# This did cost some better-written lines ("A canopy thick enough to lose the sky in"). They said
+# nothing a player could act on, and a block that describes itself in a voice BTA never uses reads
+# as an import rather than as part of the game.
+#
+# SAPLINGS TAKE "Plant to grow a <species> tree." too, completing the family. This was held back at
+# first on the grounds that several of ours carry a real condition BTA's never do -- mangrove wants
+# sand or shallow water, redwood needs its eight neighbours clear, acacia refuses plain dirt. That
+# was the wrong call and only looked right because the second-sentence rule had not been applied to
+# them: BTA's form takes the first sentence and the condition takes the second, exactly as a log
+# states its plank. Only those three say anything extra, plus the four species whose trunk is a
+# vanilla log (maple, both autumns, persimmon) -- worth stating, because it is why they have no log
+# block of their own and no wood to cut.
+tile.betteroplenty.acacia.log.desc=A log from an acacia tree. Cut it into oak planks.
+tile.betteroplenty.acacia.leaves.desc=Leaves from an acacia tree. They take the colour of the land around them.
+tile.betteroplenty.acacia.sapling.desc=Plant to grow an acacia tree. It will only take on grass.
+tile.betteroplenty.dark.log.desc=A log from a dark tree. Cut it into brown planks.
+tile.betteroplenty.dark.leaves.desc=Leaves from a dark tree.
+tile.betteroplenty.dark.sapling.desc=Plant to grow a dark tree.
+tile.betteroplenty.dead.log.desc=A log from a dead tree. Cut it into brown planks.
+tile.betteroplenty.dead.leaves.desc=Leaves from a dead tree.
+tile.betteroplenty.dead.sapling.desc=Plant to grow a dead tree.
+tile.betteroplenty.fir.log.desc=A log from a fir tree. Cut it into oak planks.
+tile.betteroplenty.fir.leaves.desc=Leaves from a fir tree.
+tile.betteroplenty.fir.sapling.desc=Plant to grow a fir tree.
+tile.betteroplenty.hellbark.log.desc=A log from a hellbark tree. Cut it into orange planks.
+tile.betteroplenty.hellbark.leaves.desc=Leaves from a hellbark tree.
+tile.betteroplenty.hellbark.sapling.desc=Plant to grow a hellbark tree.
+tile.betteroplenty.holy.log.desc=A log from a loftwood tree. Cut it into orange planks.
+tile.betteroplenty.holy.leaves.desc=Leaves from a loftwood tree.
+tile.betteroplenty.holy.sapling.desc=Plant to grow a loftwood tree.
+tile.betteroplenty.magic.log.desc=A log from a magic tree. Cut it into blue planks.
+tile.betteroplenty.magic.leaves.desc=Leaves from a magic tree.
+tile.betteroplenty.magic.sapling.desc=Plant to grow a magic tree.
+tile.betteroplenty.mangrove.log.desc=A log from a mangrove tree. Cut it into white planks.
+tile.betteroplenty.mangrove.leaves.desc=Leaves from a mangrove tree. They take the colour of the land around them.
+tile.betteroplenty.mangrove.sapling.desc=Plant to grow a mangrove tree. It roots in sand or shallow water, not soil.
+tile.betteroplenty.redwood.log.desc=A log from a redwood tree. Cut it into red planks.
+tile.betteroplenty.redwood.leaves.desc=Leaves from a redwood tree. They take the colour of the land around them.
+tile.betteroplenty.redwood.sapling.desc=Plant to grow a redwood tree. It needs the eight blocks around it clear.
+tile.betteroplenty.willow.log.desc=A log from a willow tree. Cut it into green planks.
+tile.betteroplenty.willow.leaves.desc=Leaves from a willow tree. They take the colour of the land around them.
+tile.betteroplenty.willow.sapling.desc=Plant to grow a willow tree.
+tile.betteroplenty.maple.leaves.desc=Leaves from a maple tree.
+tile.betteroplenty.maple.sapling.desc=Plant to grow a maple tree. Its trunk is ordinary oak.
+tile.betteroplenty.orangeautumn.leaves.desc=Leaves from an orange autumn tree.
+tile.betteroplenty.orangeautumn.sapling.desc=Plant to grow an orange autumn tree. Its trunk is ordinary oak.
+tile.betteroplenty.yellowautumn.leaves.desc=Leaves from a yellow autumn tree.
+tile.betteroplenty.yellowautumn.sapling.desc=Plant to grow a yellow autumn tree. Its trunk is ordinary birch.
+tile.betteroplenty.persimmon.leaves.desc=Leaves from a persimmon tree. The fruit has yet to set.
+tile.betteroplenty.persimmon.sapling.desc=Plant to grow a persimmon tree. Its trunk is ordinary oak.
+
+# The Alps cluster. Biome keys carry the namespace because BOPBiomes.translationKey builds them
+# that way -- Biome's own constructor does NOT add one, so a key written without it localises
+# nothing. Upstream's display names invert against its class names: BiomeGenAlpsForest shows as
+# "Alps Mountainside" and BiomeGenAlpsBase as "Alps Forest". Preserved, because they are what a
+# player reads.
+biome.betteroplenty.bop.alps=Alps
+biome.betteroplenty.bop.alps_forest=Alps Mountainside
+biome.betteroplenty.bop.alps_base=Alps Forest
+biome.betteroplenty.bop.thicket=Thicket
+biome.betteroplenty.bop.highland=Highland
+biome.betteroplenty.bop.polar=Polar
+biome.betteroplenty.bop.grassland=Grassland
+
+# ---- Batch 2: the Highlands and conifers ----
+#
+# Names are upstream's own from setBiomeName(...), with ONE deviation: BOP's "Birch Forest"
+# collides with BTA's own overworld.birch_forest (atlas §0's collision table), so it shows as
+# "Birch Woods" -- taken from upstream's own "Maple Woods"/"Spruce Woods" family rather than
+# invented, and unused by any other roster id.
+biome.betteroplenty.bop.mountain=Mountain
+biome.betteroplenty.bop.jade_cliffs=Jade Cliffs
+biome.betteroplenty.bop.autumn_hills=Autumn Hills
+biome.betteroplenty.bop.coniferous_forest=Coniferous Forest
+biome.betteroplenty.bop.grove=Grove
+biome.betteroplenty.bop.birch_forest=Birch Woods
+biome.betteroplenty.bop.hot_springs=Hot Springs
+biome.betteroplenty.bop.shield=Shield
+
+# --- The other six gems (content agent) ---------------------------------------
+# Upstream packs all seven gems onto one item and all fourteen ore/storage blocks onto one block,
+# so these names come from BOP's own lang file per metadata -- with ONE correction. BOP 1.2.1
+# renamed apatite to malachite in ItemGems.java:16 and BlockBOPAmethyst.java:20 but never updated
+# its .lang, which still reads "Apatite Ore". The code wins; see docs/data/bta-substitutions.tsv.
+#
+# Block keys are dot-separated (ruby_ore -> tile.betteroplenty.ruby.ore) and item keys are not.
+# Every ore says which pick frees it, because mining level is otherwise invisible in game -- these
+# six are iron-level, where amethyst alone is steel-and-up (core/BOPBlocks.java:118-124).
+tile.betteroplenty.ruby.ore.name=Ruby Ore
+tile.betteroplenty.ruby.block.name=Block of Ruby
+item.betteroplenty.ruby.name=Ruby
+tile.betteroplenty.peridot.ore.name=Peridot Ore
+tile.betteroplenty.peridot.block.name=Block of Peridot
+item.betteroplenty.peridot.name=Peridot
+tile.betteroplenty.topaz.ore.name=Topaz Ore
+tile.betteroplenty.topaz.block.name=Block of Topaz
+item.betteroplenty.topaz.name=Topaz
+tile.betteroplenty.tanzanite.ore.name=Tanzanite Ore
+tile.betteroplenty.tanzanite.block.name=Block of Tanzanite
+item.betteroplenty.tanzanite.name=Tanzanite
+tile.betteroplenty.malachite.ore.name=Malachite Ore
+tile.betteroplenty.malachite.block.name=Block of Malachite
+item.betteroplenty.malachite.name=Malachite
+tile.betteroplenty.sapphire.ore.name=Sapphire Ore
+tile.betteroplenty.sapphire.block.name=Block of Sapphire
+item.betteroplenty.sapphire.name=Sapphire
+
+# The Gem Star -- this port's Nether Star. Named for what it is made of, not for the staff, because
+# the staff is only its first use.
+item.betteroplenty.gem_star.name=Gem Star
+
+# Descriptions. Only tanzanite names where it comes from: it is the one of the six that generates
+# today, under the Alps. The rest describe the stone rather than promise a biome, the way the
+# sapling text stops short of promising a tree.
+tile.betteroplenty.ruby.ore.desc=A chunk of ruby embedded in stone.
+tile.betteroplenty.ruby.block.desc=A solid block of ruby.
+item.betteroplenty.ruby.desc=A hard red gem. It takes a polish and keeps it.
+tile.betteroplenty.peridot.ore.desc=A chunk of peridot embedded in stone.
+tile.betteroplenty.peridot.block.desc=A solid block of peridot.
+item.betteroplenty.peridot.desc=Gem-grade olivine, cut from the ground rather than smelted out of basalt.
+tile.betteroplenty.topaz.ore.desc=A chunk of topaz embedded in stone.
+tile.betteroplenty.topaz.block.desc=A solid block of topaz.
+item.betteroplenty.topaz.desc=A warm yellow stone, and clear as glass.
+tile.betteroplenty.tanzanite.ore.desc=A blue-violet crystal embedded in stone.
+tile.betteroplenty.tanzanite.block.desc=A solid block of tanzanite.
+item.betteroplenty.tanzanite.desc=A blue-violet gem. Dig for it deep under the Alps.
+tile.betteroplenty.malachite.ore.desc=Bands of malachite embedded in stone.
+tile.betteroplenty.malachite.block.desc=A solid block of malachite.
+item.betteroplenty.malachite.desc=A banded green stone. Softer-looking than it is.
+tile.betteroplenty.sapphire.ore.desc=A chunk of sapphire embedded in stone.
+tile.betteroplenty.sapphire.block.desc=A solid block of sapphire.
+item.betteroplenty.sapphire.desc=A cold blue gem, harder than it looks.
+item.betteroplenty.gem_star.desc=Five gems from five climates, fused into one star. It remembers every place you dug.
+
+# --- Entities (mobs agent) ----------------------------------------------------
+# Passed as EntityDispatcher.addMapping's nameKey. A null key is not cosmetic:
+# ScreenWorldSettings gates its per-mob spawn toggles on nameKey != null, so an
+# unnamed mob cannot be switched off in world settings. See BOPEntities.
+entity.betteroplenty.jungle_spider.name=Jungle Spider
+entity.betteroplenty.rosester.name=Rosester
+entity.betteroplenty.bird.name=Bird
+entity.betteroplenty.wasp.name=Wasp
+entity.betteroplenty.pixie.name=Pixie
+entity.betteroplenty.glob.name=Glob
+entity.betteroplenty.phantom.name=Phantom
+
+# Projectiles. A thrown entity is never named on screen, but a null nameKey also
+# costs the display name a chunk-load debug view shows. See BOPProjectiles.
+entity.betteroplenty.mudball.name=Mudball
+entity.betteroplenty.dart.name=Dart
+
+# --- Fluids (fluids agent) ----------------------------------------------------
+# Four blocks: BTA models a fluid as a still/flowing pair, so each fluid is two blocks and each
+# gets its own name, the way tile.fluid.water.still/flowing do. Neither is in the creative menu --
+# you get a fluid from a bucket -- but both still need keys, because /give and the block-picker
+# reach them.
+tile.betteroplenty.fluid.liquid.poison.still.name=Still Liquid Poison
+tile.betteroplenty.fluid.liquid.poison.flowing.name=Flowing Liquid Poison
+tile.betteroplenty.fluid.spring.water.still.name=Still Spring Water
+tile.betteroplenty.fluid.spring.water.flowing.name=Flowing Spring Water
+tile.betteroplenty.fluid.liquid.poison.still.desc=Liquid poison that does not flow when placed. Standing in it sickens you, and no armour will help.
+tile.betteroplenty.fluid.liquid.poison.flowing.desc=Liquid poison that flows when placed. It will not eat through stone.
+tile.betteroplenty.fluid.spring.water.still.desc=Spring water that does not flow when placed. Bathe in it and your wounds close.
+tile.betteroplenty.fluid.spring.water.flowing.desc=Spring water that flows when placed.
+
+# The amethyst bucket. Its contents live in stack NBT on BTA's shared bucket-state axis, so the
+# key is the item's own plus the state name with underscores stripped -- ItemBucket.getLanguageKey
+# builds it. It carries BTA's five fluids as readily as BOP's two, so all seven need naming.
+item.betteroplenty.bucket_amethyst.name=Amethyst Bucket
+item.betteroplenty.bucket_amethyst.desc=Used to hold various liquids. This one takes two loads to an iron bucket's one.
+item.betteroplenty.bucket_amethyst.springwater.name=Amethyst Bucket of Spring Water
+item.betteroplenty.bucket_amethyst.springwater.desc=A double bucket full of steaming spring water. Drink it to mend slowly.
+item.betteroplenty.bucket_amethyst.liquidpoison.name=Amethyst Bucket of Liquid Poison
+item.betteroplenty.bucket_amethyst.liquidpoison.desc=A double bucket carefully filled with liquid poison. Do not drink it.
+item.betteroplenty.bucket_amethyst.water.name=Amethyst Water Bucket
+item.betteroplenty.bucket_amethyst.water.desc=A double bucket full of the deep blue.
+item.betteroplenty.bucket_amethyst.lava.name=Amethyst Lava Bucket
+item.betteroplenty.bucket_amethyst.lava.desc=A double bucket full of molten rock. Hot!
+item.betteroplenty.bucket_amethyst.acid.name=Amethyst Acid Bucket
+item.betteroplenty.bucket_amethyst.acid.desc=A double bucket carefully filled with vile acid.
+item.betteroplenty.bucket_amethyst.milk.name=Amethyst Bucket of Milk
+item.betteroplenty.bucket_amethyst.milk.desc=Doubly good for your bones.
+item.betteroplenty.bucket_amethyst.icecream.name=Amethyst Bucket of Ice Cream
+item.betteroplenty.bucket_amethyst.icecream.desc=A double helping of the frosty treat.
+
+# BTA's own buckets can carry BOP's fluids too -- registering a bucket state is global, so iron and
+# steel learn both the moment BOPFluids runs. Their keys are BTA's, defined here because the states
+# are ours. BOPFluids.audit() walks every bucket against every state and names anything missing.
+item.bucket.iron.springwater.name=Iron Bucket of Spring Water
+item.bucket.iron.springwater.desc=A bucket full of steaming spring water. Drink it to mend slowly.
+item.bucket.iron.liquidpoison.name=Iron Bucket of Liquid Poison
+item.bucket.iron.liquidpoison.desc=A bucket carefully filled with liquid poison. Do not drink it.
+item.bucket.steel.springwater.name=Steel Bucket of Spring Water
+item.bucket.steel.springwater.desc=A large bucket full of steaming spring water. Drink it to mend slowly.
+item.bucket.steel.liquidpoison.name=Steel Bucket of Liquid Poison
+item.bucket.steel.liquidpoison.desc=A large bucket carefully filled with liquid poison. Do not drink it.
+
+# --- Ground cover (ground-cover agent) -----------------------------------------------------
+# BOP's `foliage` and `plants` metadata blocks, split into standalone blocks, plus the two hanging
+# mosses. Names are upstream's own from biomesoplenty.lang -- including the fact that both halves of
+# a two-tall plant share the single plant's name, because a player only ever holds one item. Wild
+# carrot is the exception: upstream never gives that block a name at all (only its food item, "Wild
+# Carrots"), because picking the block yields the food.
+#
+# Keys are DOT-separated: BlockBuilder turns "poison_ivy" into tile.betteroplenty.poison.ivy and
+# keeps the underscored form only as the namespace id. See the note at the top of this file.
+tile.betteroplenty.high.grass.name=High Grass
+tile.betteroplenty.high.grass.top.name=High Grass
+tile.betteroplenty.bush.name=Bush
+tile.betteroplenty.sprout.name=Sprout
+tile.betteroplenty.poison.ivy.name=Poison Ivy
+tile.betteroplenty.berry.bush.name=Berry Bush
+tile.betteroplenty.shrub.name=Shrub
+tile.betteroplenty.damp.grass.name=Damp Grass
+tile.betteroplenty.koru.name=Koru
+tile.betteroplenty.clover.patch.name=Clover Patch
+tile.betteroplenty.dead.grass.name=Dead Grass
+tile.betteroplenty.desert.grass.name=Desert Grass
+tile.betteroplenty.desert.sprouts.name=Desert Sprouts
+tile.betteroplenty.dune.grass.name=Dune Grass
+tile.betteroplenty.thorn.name=Thorns
+tile.betteroplenty.barley.name=Barley
+tile.betteroplenty.cattail.name=Cattail
+tile.betteroplenty.cattail.top.name=Cattail
+tile.betteroplenty.cattail.bottom.name=Cattail
+tile.betteroplenty.river.cane.name=River Cane
+tile.betteroplenty.wild.carrot.name=Wild Carrot
+tile.betteroplenty.tiny.cactus.name=Tiny Cactus
+tile.betteroplenty.reed.name=Reed
+tile.betteroplenty.root.name=Root
+tile.betteroplenty.moss.name=Moss
+tile.betteroplenty.tree.moss.name=Tree Moss
+
+# Descriptions. Each one says where it grows, because soil is the only thing that distinguishes
+# half this family, and names the mechanic where there is one -- the two that hurt, the two that
+# come in pairs, and the one that has to stand beside water.
+tile.betteroplenty.high.grass.desc=Grass past your knees. Cut the top and the rest goes back to ordinary grass.
+tile.betteroplenty.high.grass.top.desc=The upper half of a stand of high grass. It cannot stand without the lower.
+tile.betteroplenty.bush.desc=A low, woody tuft. It will grow in the dark where flowers will not.
+tile.betteroplenty.sprout.desc=A thin green shoot, barely up yet.
+tile.betteroplenty.poison.ivy.desc=Do not wade through it. Leather boots and leggings will save you.
+tile.betteroplenty.berry.bush.desc=A bush heavy with fruit. Shears take the bush and leave the berries.
+tile.betteroplenty.shrub.desc=A leafy tuft that takes the colour of the trees around it.
+tile.betteroplenty.damp.grass.desc=Grass that never quite dries out.
+tile.betteroplenty.koru.desc=A tight green spiral, waiting to unfurl.
+tile.betteroplenty.clover.patch.desc=Clover pressed flat to the ground. You will walk over it without noticing.
+tile.betteroplenty.dead.grass.desc=Brittle and colourless. It wants dry ground and nothing else.
+tile.betteroplenty.desert.grass.desc=Tough grass off the red rock. It grows nowhere softer.
+tile.betteroplenty.desert.sprouts.desc=Small shoots that have made a go of it somewhere hot.
+tile.betteroplenty.dune.grass.desc=Coarse grass that binds sand together. It will only grow on it.
+tile.betteroplenty.thorn.desc=Brushing past costs you. Pulling it up costs you twice, unless you use shears.
+tile.betteroplenty.barley.desc=A ripe head of grain. Three of them make a wheat.
+tile.betteroplenty.cattail.desc=A marsh reed. It only grows on grass with water beside it.
+tile.betteroplenty.cattail.top.desc=The head of a tall cattail, standing on its own stem.
+tile.betteroplenty.cattail.bottom.desc=The stem of a tall cattail, holding the head up.
+tile.betteroplenty.river.cane.desc=A jointed stalk. It grows on grass, and on itself.
+tile.betteroplenty.wild.carrot.desc=A white flower with something worth digging up underneath.
+tile.betteroplenty.tiny.cactus.desc=Ankle-high and just as sharp as the tall kind.
+tile.betteroplenty.reed.desc=It stands in the water rather than beside it.
+tile.betteroplenty.root.desc=A root come through a cave roof, hanging in the dark.
+tile.betteroplenty.moss.desc=A green sheet on damp stone. Grind it into green dye, or wrap it round cobble.
+tile.betteroplenty.tree.moss.desc=Moss hanging out of a canopy. You will need shears to take it.
+
+# Short and medium grass -- the settled canonical grass (atlas 9a E2), landed with the pilot batch.
+tile.betteroplenty.short.grass.name=Short Grass
+tile.betteroplenty.short.grass.desc=Grass kept low by the wind. Shears will lift it whole.
+tile.betteroplenty.medium.grass.name=Medium Grass
+tile.betteroplenty.medium.grass.desc=Grass at shin height, between the short stuff and the tall.
+
+# ---------------------------------------------------------------------------------------------
+# BOP's flowers and mushrooms: `flowers` (16), `flowers2` (7 -- lavender is above, with Lavender
+# Fields) and `mushrooms` (5). Keys are DOT-separated because HalpLibe rewrites a block's
+# underscores; "blue_milk_cap" is tile.betteroplenty.blue.milk.cap, not blue_milk_cap.
+#
+# Names are upstream's own, from biomesoplenty.lang, including the ones that read oddly next to
+# BTA's: BOP's `deadbloom` shows as "Deathbloom", its `rainbowflower` as "Chromaflora", and both
+# halves of the sunflower are just "Sunflower". Two land close to a BTA name and both are
+# deliberate -- BTA's yellow flower is called Dandelion and BOP's is the White Dandelion (the seed
+# head, which is why it grinds to silver), and BTA's light blue flower is a Bluebell where BOP's
+# is a cluster of Bluebells that grinds to blue. Each .desc names the dye, which is the only way
+# to tell them apart in game.
+tile.betteroplenty.clover.name=Clover
+tile.betteroplenty.swamp.flower.name=Swampflower
+tile.betteroplenty.deathbloom.name=Deathbloom
+tile.betteroplenty.glow.flower.name=Glowflower
+tile.betteroplenty.hydrangea.name=Blue Hydrangea
+tile.betteroplenty.cosmos.name=Orange Cosmos
+tile.betteroplenty.daffodil.name=Pink Daffodil
+tile.betteroplenty.wildflower.name=Wildflower
+tile.betteroplenty.violet.name=Violet
+tile.betteroplenty.anemone.name=White Anemone
+tile.betteroplenty.lily.flower.name=Waterlily
+tile.betteroplenty.rainbow.flower.name=Chromaflora
+tile.betteroplenty.bromeliad.name=Bromeliad
+tile.betteroplenty.sunflower.name=Sunflower
+tile.betteroplenty.sunflower.top.name=Sunflower
+tile.betteroplenty.dandelion.name=Dandelion Puff
+tile.betteroplenty.hibiscus.name=Pink Hibiscus
+tile.betteroplenty.lily.of.the.valley.name=Lily of the Valley
+tile.betteroplenty.burning.blossom.name=Burning Blossom
+tile.betteroplenty.goldenrod.name=Goldenrod
+tile.betteroplenty.bluebells.name=Bluebells
+tile.betteroplenty.miners.delight.name=Miner's Delight
+tile.betteroplenty.icy.iris.name=Icy Iris
+tile.betteroplenty.toadstool.name=Toadstool
+tile.betteroplenty.portobello.name=Portobello
+tile.betteroplenty.blue.milk.cap.name=Blue Milk Cap
+tile.betteroplenty.glowshroom.name=Glowshroom
+tile.betteroplenty.flat.mushroom.name=Flat Mushroom
+
+tile.betteroplenty.clover.desc=Three leaves pressed flat to the ground. Lucky, if you find a fourth.
+tile.betteroplenty.swamp.flower.desc=A pale bloom off the wet ground. Grind it into cyan dye.
+tile.betteroplenty.deathbloom.desc=Do not touch it, and do not pick it bare-handed. Leather boots and leggings will see you past; shears will get you the flower. Grind it into black dye.
+tile.betteroplenty.glow.flower.desc=A bloom that gives off its own light. Nobody has found a use for it yet.
+tile.betteroplenty.hydrangea.desc=A head of blue florets. Grind it into light blue dye.
+tile.betteroplenty.cosmos.desc=A tall orange bloom on a thin stem. Grind it into orange dye.
+tile.betteroplenty.daffodil.desc=A pink trumpet, low to the ground. Grind it into pink dye.
+tile.betteroplenty.wildflower.desc=It grows wherever it likes. Grind it into magenta dye.
+tile.betteroplenty.violet.desc=A small dark bloom that prefers the cold. Grind it into purple dye.
+tile.betteroplenty.anemone.desc=White petals round a dark eye. Grind it into white dye.
+tile.betteroplenty.lily.flower.desc=A bloom that sits on floating leaves. It needs algae under it to stand.
+tile.betteroplenty.rainbow.flower.desc=Its colour will not settle. It grows in the dark as readily as the light.
+tile.betteroplenty.bromeliad.desc=A spiny rosette off the hot ground. It grows on sand and nothing softer.
+tile.betteroplenty.sunflower.desc=Two blocks tall, and the head is the half worth having. Plant it where there is room above.
+tile.betteroplenty.sunflower.top.desc=The head of a sunflower. Break it and the stalk goes with it.
+tile.betteroplenty.dandelion.desc=The seed head, gone to white. Grind it into silver dye.
+tile.betteroplenty.hibiscus.desc=A wide pink bloom. Grind it into pink dye.
+tile.betteroplenty.lily.of.the.valley.desc=Small white bells on a stem. Grind it into white dye.
+tile.betteroplenty.burning.blossom.desc=It grows on netherrack and it is still hot. Standing in it sets you alight; shears will get you the flower. Grind it into orange dye.
+tile.betteroplenty.goldenrod.desc=A yellow plume. Grind it into yellow dye.
+tile.betteroplenty.bluebells.desc=A cluster of deep blue bells. Grind them into blue dye.
+tile.betteroplenty.miners.delight.desc=It grows on bare stone deep down, where nothing else does. A good sign you are in the right place.
+tile.betteroplenty.icy.iris.desc=A pale iris that only opens in the cold. Grind it into light blue dye.
+tile.betteroplenty.toadstool.desc=Red with white flecks. Do not eat it.
+tile.betteroplenty.portobello.desc=A broad brown cap. This one you can eat.
+tile.betteroplenty.blue.milk.cap.desc=It bleeds blue where you cut it. Grind it into blue dye.
+tile.betteroplenty.glowshroom.desc=A cave mushroom that lights its own patch of floor. Grind it into lime dye.
+tile.betteroplenty.flat.mushroom.desc=A flat brown cap, almost a plate. Grind it into brown dye.
+
+# ---- The coastline lane: six terrain-placed biomes and BOP's underwater flora ----
+# Display names are upstream's setBiomeName(...), not the class names -- BiomeGenBeachGravel shows
+# as "Gravel Beach" and BiomeGenOceanAbyss as "Oceanic Abyss".
+biome.betteroplenty.bop.shore=Shore
+biome.betteroplenty.bop.beach_gravel=Gravel Beach
+biome.betteroplenty.bop.beach_overgrown=Overgrown Beach
+biome.betteroplenty.bop.ocean_abyss=Oceanic Abyss
+biome.betteroplenty.bop.ocean_coral=Coral Reef
+biome.betteroplenty.bop.ocean_kelp=Kelp Forest
+
+# The ocean lane: the fourth member of BiomeLayerBiomes' ocean pool, which upstream took from
+# vanilla (BiomeGenBase.ocean, setBiomeName("Ocean")). Placed by the land/water mask rather than by
+# climate, and it is what the three above are dotted into.
+biome.betteroplenty.bop.ocean=Ocean
+
+# Block names follow upstream's tile.bop.coral.* where it has them. The three strand segments have
+# no upstream name because getSubBlocks hides them; they still get both keys, because BOPAudit
+# walks the registry rather than the creative menu and a hidden block with no name is still a raw
+# key in a tooltip the moment anything shows one.
+tile.betteroplenty.kelp.bottom.name=Kelp
+tile.betteroplenty.kelp.middle.name=Kelp
+tile.betteroplenty.kelp.top.name=Kelp
+tile.betteroplenty.kelp.name=Kelp
+tile.betteroplenty.coral.pink.name=Pink Coral
+tile.betteroplenty.coral.orange.name=Orange Coral
+tile.betteroplenty.coral.blue.name=Blue Coral
+tile.betteroplenty.coral.glow.name=Glowing Coral
+
+tile.betteroplenty.kelp.bottom.desc=The foot of a kelp strand, rooted to the sea bed.
+tile.betteroplenty.kelp.middle.desc=A length of kelp, holding up whatever grows above it.
+tile.betteroplenty.kelp.top.desc=The tip of a kelp strand. Break what is under it and it goes too.
+tile.betteroplenty.kelp.desc=A frond off the sea bed. Plant it underwater on sand, dirt, clay, stone or sponge.
+tile.betteroplenty.coral.pink.desc=A reef-builder. It only grows underwater, and it will not stand in the open air.
+tile.betteroplenty.coral.orange.desc=Bright enough to spot from the surface on a clear day.
+tile.betteroplenty.coral.blue.desc=The colour of the water it grows in, which is no help at all when you are looking for it.
+tile.betteroplenty.coral.glow.desc=It lights the sea floor around it. The only lamp down here.
+
+# Batch 4 -- meadows and fields. Names come from setBiomeName(...) in core/BOPBiomes.java, not from
+# the class: BiomeGenShrublandForest shows as "Thick Shrubland" and BiomeGenFieldForest as
+# "Forested Field". Three of these -- Shrubland, Meadow and Boreal Forest -- share a display name
+# with a BTA biome. Kept: the registry keys are namespaced and distinct, and the settled rule is
+# that a BOP player should find BOP's biomes named as BOP named them.
+biome.betteroplenty.bop.shrubland=Shrubland
+biome.betteroplenty.bop.shrubland_forest=Thick Shrubland
+biome.betteroplenty.bop.field=Field
+biome.betteroplenty.bop.field_forest=Forested Field
+biome.betteroplenty.bop.meadow=Meadow
+biome.betteroplenty.bop.meadow_forest=Meadow Forest
+biome.betteroplenty.bop.spruce_woods=Spruce Woods
+biome.betteroplenty.bop.boreal_forest=Boreal Forest
+biome.betteroplenty.bop.redwood_forest=Redwood Forest
+biome.betteroplenty.bop.prairie=Prairie
+
+# Batch 10 -- savanna and scrub. Display names from setBiomeName(...), not the class name.
+biome.betteroplenty.bop.scrubland=Scrubland
+biome.betteroplenty.bop.dead_forest=Dead Forest
+biome.betteroplenty.bop.savanna=Savanna
+biome.betteroplenty.bop.savanna_plateau=Savanna Plateau
+biome.betteroplenty.bop.steppe=Steppe
+biome.betteroplenty.bop.overgrown_greens=Overgrown Greens
+
+# ---- Batch 1: the frozen north -----------------------------------------------
+# Nine biomes at the cold end of the roster. Display names are upstream's setBiomeName(...) --
+# BiomeGenConiferousForestSnow shows as "Snowy Coniferous Forest" and BiomeGenDeadForestSnow as
+# "Snowy Dead Forest", both adjective-first where the class name is suffix-last.
+biome.betteroplenty.bop.arctic=Arctic
+biome.betteroplenty.bop.glacier=Glacier
+biome.betteroplenty.bop.icy_hills=Icy Hills
+biome.betteroplenty.bop.frost_forest=Frost Forest
+biome.betteroplenty.bop.coniferous_forest_snow=Snowy Coniferous Forest
+biome.betteroplenty.bop.dead_forest_snow=Snowy Dead Forest
+biome.betteroplenty.bop.tundra=Tundra
+biome.betteroplenty.bop.maple_woods=Maple Woods
+biome.betteroplenty.bop.crag=Crag
+
+# Their two surface stones. Block keys are dot-separated, so hard_ice is tile.betteroplenty.hard.ice
+# -- writing the underscore localises nothing. Names are upstream's own, from biomesoplenty.lang
+# (tile.bop.generic.hard_ice, tile.bop.generic.crag_rock), including the fact that BOP calls the
+# block "Hardened Ice" while its field, its texture and its biome all say hard ice.
+tile.betteroplenty.hard.ice.name=Hardened Ice
+tile.betteroplenty.crag.rock.name=Crag Rock
+tile.betteroplenty.hard.ice.desc=Glacier ice, packed until it takes a pickaxe. It will not melt and it will not float.
+tile.betteroplenty.crag.rock.desc=The black stone a crag is made of, all the way down. Nothing grows on it.
+
+# ---- Batch 5: the temperate forests, and the Garden's four blocks ----
+# Display names are upstream's setBiomeName(...), not the class names -- BiomeGenTimberThin shows
+# as "Thinned Timber". "Seasonal Forest" deliberately duplicates BTA's own biome of that name: E5
+# drops only biomes/vanilla/, and BOP's Seasonal Forest is a real original biome with its own trees
+# (atlas §0's collision table). Nothing in the port keys off the display string.
+biome.betteroplenty.bop.cherry_blossom_grove=Cherry Blossom Grove
+biome.betteroplenty.bop.deciduous_forest=Deciduous Forest
+biome.betteroplenty.bop.garden=Garden
+biome.betteroplenty.bop.seasonal_forest=Seasonal Forest
+biome.betteroplenty.bop.seasonal_spruce_forest=Seasonal Spruce Forest
+biome.betteroplenty.bop.temperate_rainforest=Temperate Rainforest
+biome.betteroplenty.bop.timber=Timber
+biome.betteroplenty.bop.timber_thin=Thinned Timber
+
+# The Garden's blocks. Upstream names: tile.bop.longGrass, tile.bop.petals.bigflowerred /
+# .bigfloweryellow, and the stem has none of its own (BlockBOPLog skips metadata 11 in its texture
+# loop, so it never got a name either).
+tile.betteroplenty.long.grass.name=Long Grass
+tile.betteroplenty.long.grass.desc=Deep, unmown turf. Only the Garden grows it, and only it will hold a giant flower up.
+tile.betteroplenty.big.flower.stem.name=Giant Flower Stem
+tile.betteroplenty.big.flower.stem.desc=Five blocks of it hold a canopy of petals overhead. Not a tree, whatever it looks like.
+tile.betteroplenty.big.flower.red.name=Red Giant Flower
+tile.betteroplenty.big.flower.red.desc=Petals the size of a floor. Cut them and one in twenty leaves a rose behind.
+tile.betteroplenty.big.flower.yellow.name=Yellow Giant Flower
+tile.betteroplenty.big.flower.yellow.desc=Wider and squatter than the red one. One in twenty cuts leaves a dandelion.
+
+# ---- Batch 8: the mystic and lush oddities ----
+# Display names are upstream's setBiomeName(...), not the class names -- BiomeGenMysticGroveThin
+# shows as "Thinned Mystic Grove". No new blocks or items in this batch: every plant, ore, fluid and
+# tree it places was landed by an earlier lane.
+biome.betteroplenty.bop.mystic_grove=Mystic Grove
+biome.betteroplenty.bop.mystic_grove_thin=Thinned Mystic Grove
+biome.betteroplenty.bop.oasis=Oasis
+biome.betteroplenty.bop.sacred_springs=Sacred Springs
+biome.betteroplenty.bop.woodland=Woodland
+biome.betteroplenty.bop.wetland=Wetland
+
+# ---- Batch 3: the wetlands ----
+# Display names are upstream's setBiomeName(...) verbatim. Two new blocks, both of them drapes that
+# hang off a canopy: upstream calls them "Willow" (tile.bop.willow) and "Ivy" (tile.bop.ivy). The
+# first is renamed "Willow Drape" here because the port already ships Willow Leaves, Willow Log,
+# Willow Planks and a Willow Sapling, and a fifth item called simply "Willow" would be unreadable in
+# a creative menu that holds all five. The registry key stays betteroplenty:block/willow_drape.
+biome.betteroplenty.bop.bayou=Bayou
+biome.betteroplenty.bop.marsh=Marsh
+biome.betteroplenty.bop.silkglades=Silkglades
+biome.betteroplenty.bop.moor=Moor
+biome.betteroplenty.bop.fen=Fen
+biome.betteroplenty.bop.lush_swamp=Lush Swamp
+
+tile.betteroplenty.willow.drape.name=Willow Drape
+tile.betteroplenty.willow.drape.desc=Pale strands trailed off a bayou cypress. Shears will take it down.
+tile.betteroplenty.ivy.name=Ivy
+tile.betteroplenty.ivy.desc=It hangs off a swamp canopy, and unlike the rest of them you can climb it.
+
+# ---- Batch 6: dry shrub and orchards (2026-07-26) ----
+# Display names are upstream's setBiomeName(...), not the class names -- BiomeGenPastureThin
+# shows as "Thinned Pasture". BTA also ships a biome called Outback; the registry keys are
+# namespaced so both keep their author's name.
+biome.betteroplenty.bop.outback=Outback
+biome.betteroplenty.bop.heathland=Heathland
+biome.betteroplenty.bop.lush_desert=Lush Desert
+biome.betteroplenty.bop.canyon=Canyon
+biome.betteroplenty.bop.canyon_ravine=Canyon Ravine
+biome.betteroplenty.bop.chaparral=Chaparral
+biome.betteroplenty.bop.orchard=Orchard
+biome.betteroplenty.bop.pasture=Pasture
+biome.betteroplenty.bop.pasture_meadow=Pasture Meadow
+biome.betteroplenty.bop.pasture_thin=Thinned Pasture
+
+# The red rock family. Block keys are DOT-separated even though block ids are snake_case --
+# HalpLibe derives the key as name.replace("_", "."), so "red_rock" keys as "red.rock".
+tile.betteroplenty.red.rock.name=Red Rock
+tile.betteroplenty.red.rock.desc=A block of solid red rock.
+tile.betteroplenty.red.cobble.name=Red Cobblestone
+tile.betteroplenty.red.cobble.desc=Red rock, smashed apart and reconstituted.
+tile.betteroplenty.red.brick.name=Red Bricks
+tile.betteroplenty.red.brick.desc=Stacked bricks of red rock.
+tile.betteroplenty.hard.sand.name=Hardened Sand
+tile.betteroplenty.hard.sand.desc=Sand packed solid by the outback sun. It will not fall on you.
+tile.betteroplenty.hard.dirt.name=Hardened Dirt
+tile.betteroplenty.hard.dirt.desc=The floor of a canyon, baked past digging with a shovel.
+
+# The Orchard's fruit tree.
+tile.betteroplenty.apple.leaves.name=Apple Leaves
+tile.betteroplenty.apple.leaves.desc=Leaves from an apple tree. Fruit ripens through the summer; punch a ripe one and catch it.
+tile.betteroplenty.apple.sapling.name=Apple Sapling
+tile.betteroplenty.apple.sapling.desc=Plant to grow an apple tree.
+
+# Batch 9 -- the jungle and the tropics. Display names are upstream's setBiomeName(...), not the
+# class names: "Tropics Mountain" is one BiomeGenTropics registered at a second roster id.
+biome.betteroplenty.bop.bamboo_forest=Bamboo Forest
+biome.betteroplenty.bop.tropical_rainforest=Tropical Rainforest
+biome.betteroplenty.bop.rainforest=Rainforest
+biome.betteroplenty.bop.tropics=Tropics
+biome.betteroplenty.bop.tropics_mountain=Tropics Mountain
+biome.betteroplenty.bop.fungi_forest=Fungi Forest
+
+# The Fungi Forest's ground. Ported because BOP generates on it and BTA cut it; static, with no
+# spread and no decay -- see BOPJungle.MYCELIUM.
+tile.betteroplenty.mycelium.name=Mycelium
+tile.betteroplenty.mycelium.desc=Fungal soil, threaded through the ground where mushrooms grow. Dig it and you get dirt.
+
+# The Bamboo Forest's stalk, its canopy and the plank it cuts into.
+tile.betteroplenty.bamboo.name=Bamboo
+tile.betteroplenty.bamboo.desc=A jointed green stalk. It climbs three high on grass, and four of them weave into thatching.
+tile.betteroplenty.bamboo.leaves.name=Bamboo Leaves
+tile.betteroplenty.bamboo.leaves.desc=Leaves from a stand of bamboo. Out of reach of a stalk, they wither.
+tile.betteroplenty.bamboo.sapling.name=Bamboo Sapling
+tile.betteroplenty.bamboo.sapling.desc=Plant to grow a stand of bamboo.
+tile.betteroplenty.thatching.name=Bamboo Thatching
+tile.betteroplenty.thatching.desc=Bamboo woven flat. Take it apart again and you get twice what you put in.
+
+# Batch 7 -- the dark and sour swamps. Display names are upstream's setBiomeName(...), not the
+# class names: BiomeGenOminousWoodsThick shows as "Thick Ominous Woods".
+biome.betteroplenty.bop.ominous_woods=Ominous Woods
+biome.betteroplenty.bop.ominous_woods_thick=Thick Ominous Woods
+biome.betteroplenty.bop.dead_swamp=Dead Swamp
+biome.betteroplenty.bop.quagmire=Quagmire
+biome.betteroplenty.bop.sludgepit=Sludgepit
+biome.betteroplenty.bop.mangrove=Mangrove
+biome.betteroplenty.bop.bog=Bog
+
+# Batch 11 -- the Badlands terracotta. Vanilla 1.6.4 blocks BTA cut, kept because the biome is
+# nothing but its clay. Block keys are DOT-separated (HalpLibe: name.replace("_", ".")).
+tile.betteroplenty.hardened.clay.name=Hardened Clay
+tile.betteroplenty.hardened.clay.desc=Clay baked hard by a sun with nothing between it and the ground. The whole badlands is made of it.
+tile.betteroplenty.stained.clay.orange.name=Orange Stained Clay
+tile.betteroplenty.stained.clay.orange.desc=A seam of hardened clay that dried a shade warmer. It bands the badlands in stripes.
+tile.betteroplenty.stained.clay.red.name=Red Stained Clay
+tile.betteroplenty.stained.clay.red.desc=The deepest band in a badlands wall, rusted through by iron in the clay.
+
+# Batch 11 -- the deserts and the wastes. Display names are upstream's setBiomeName(...).
+biome.betteroplenty.bop.badlands=Badlands
+biome.betteroplenty.bop.mesa=Mesa
+
+# Batch 11 -- the wastes' four surfaces. BOP's own blocks this time, not vanilla's.
+tile.betteroplenty.ash.name=Ash
+tile.betteroplenty.ash.desc=Deadlands ash, deep enough to wade through. It smoulders, it drags at your boots, and fire laid on it never goes out.
+tile.betteroplenty.ash.stone.name=Ash Stone
+tile.betteroplenty.ash.stone.desc=The cold bones of a volcano, packed grey under the ash. Lava runs on it and nothing grows.
+tile.betteroplenty.stalagmite.name=Stalagmite
+tile.betteroplenty.stalagmite.desc=A spike of stone grown up from a cave floor.
+tile.betteroplenty.stalactite.name=Stalactite
+tile.betteroplenty.stalactite.desc=A spike of stone hanging from a cave ceiling.
+tile.betteroplenty.quicksand.name=Quicksand
+tile.betteroplenty.quicksand.desc=It looks like ground and holds you like a web. There is no floor to it.
+
+# The Boneyard's props. Block keys are DOT-separated -- HalpLibe rewrites bones_small to
+# tile.betteroplenty.bones.small -- so an underscored line here would localise nothing (PS 7).
+# Each bone's second sentence names its bonemeal yield: three sizes, three numbers, and no way to
+# find out in game short of trying all three.
+tile.betteroplenty.bones.small.name=Small Bone
+tile.betteroplenty.bones.small.desc=A rib from something that died down here. Grinds into three bonemeal.
+tile.betteroplenty.bones.medium.name=Medium Bone
+tile.betteroplenty.bones.medium.desc=A thicker length of the same skeleton. Grinds into six bonemeal.
+tile.betteroplenty.bones.large.name=Large Bone
+tile.betteroplenty.bones.large.desc=A vertebra the size of a block. Grinds into twelve bonemeal.
+tile.betteroplenty.grave.name=Grave
+tile.betteroplenty.grave.desc=A stone cross, standing where somebody stopped. Someone put it there.
+tile.betteroplenty.grave.top.name=Grave
+tile.betteroplenty.grave.top.desc=The head of a grave marker. It cannot stand without its plinth.
+tile.betteroplenty.dried.dirt.name=Dried Dirt
+tile.betteroplenty.dried.dirt.desc=Wasteland crust, cracked and crumbling. Bake ordinary dirt long enough and this is what is left.
+tile.betteroplenty.smoldering.grass.name=Smouldering Grass
+tile.betteroplenty.smoldering.grass.desc=Turf still burning from underneath. Standing on it will set you alight.
+
+# ...and the three biomes made of them. Display names are upstream's setBiomeName(...).
+biome.betteroplenty.bop.deadlands=Deadlands
+biome.betteroplenty.bop.volcano=Volcano
+biome.betteroplenty.bop.wasteland=Wasteland
+
+# Batch 11's last two, and the last two of the mass port. Neither adds a block.
+biome.betteroplenty.bop.brushland=Brushland
+biome.betteroplenty.bop.dunes=Dunes
+
+# Gem-ore variants, one per host rock BTA generates (BOPOreVariants). Same display name as
+# the stone-hosted ore -- it is the same ore -- with the host named in the description.
+tile.betteroplenty.amethyst.ore.basalt.name=Amethyst Ore
+tile.betteroplenty.amethyst.ore.granite.name=Amethyst Ore
+tile.betteroplenty.amethyst.ore.limestone.name=Amethyst Ore
+tile.betteroplenty.amethyst.ore.permafrost.name=Amethyst Ore
+tile.betteroplenty.ruby.ore.basalt.name=Ruby Ore
+tile.betteroplenty.ruby.ore.granite.name=Ruby Ore
+tile.betteroplenty.ruby.ore.limestone.name=Ruby Ore
+tile.betteroplenty.ruby.ore.permafrost.name=Ruby Ore
+tile.betteroplenty.peridot.ore.basalt.name=Peridot Ore
+tile.betteroplenty.peridot.ore.granite.name=Peridot Ore
+tile.betteroplenty.peridot.ore.limestone.name=Peridot Ore
+tile.betteroplenty.peridot.ore.permafrost.name=Peridot Ore
+tile.betteroplenty.topaz.ore.basalt.name=Topaz Ore
+tile.betteroplenty.topaz.ore.granite.name=Topaz Ore
+tile.betteroplenty.topaz.ore.limestone.name=Topaz Ore
+tile.betteroplenty.topaz.ore.permafrost.name=Topaz Ore
+tile.betteroplenty.tanzanite.ore.basalt.name=Tanzanite Ore
+tile.betteroplenty.tanzanite.ore.granite.name=Tanzanite Ore
+tile.betteroplenty.tanzanite.ore.limestone.name=Tanzanite Ore
+tile.betteroplenty.tanzanite.ore.permafrost.name=Tanzanite Ore
+tile.betteroplenty.malachite.ore.basalt.name=Malachite Ore
+tile.betteroplenty.malachite.ore.granite.name=Malachite Ore
+tile.betteroplenty.malachite.ore.limestone.name=Malachite Ore
+tile.betteroplenty.malachite.ore.permafrost.name=Malachite Ore
+tile.betteroplenty.sapphire.ore.basalt.name=Sapphire Ore
+tile.betteroplenty.sapphire.ore.granite.name=Sapphire Ore
+tile.betteroplenty.sapphire.ore.limestone.name=Sapphire Ore
+tile.betteroplenty.sapphire.ore.permafrost.name=Sapphire Ore
+tile.betteroplenty.amethyst.ore.basalt.desc=A chunk of amethyst embedded in basalt.
+tile.betteroplenty.amethyst.ore.granite.desc=A chunk of amethyst embedded in granite.
+tile.betteroplenty.amethyst.ore.limestone.desc=A chunk of amethyst embedded in limestone.
+tile.betteroplenty.amethyst.ore.permafrost.desc=A chunk of amethyst embedded in permafrost.
+tile.betteroplenty.ruby.ore.basalt.desc=A chunk of ruby embedded in basalt.
+tile.betteroplenty.ruby.ore.granite.desc=A chunk of ruby embedded in granite.
+tile.betteroplenty.ruby.ore.limestone.desc=A chunk of ruby embedded in limestone.
+tile.betteroplenty.ruby.ore.permafrost.desc=A chunk of ruby embedded in permafrost.
+tile.betteroplenty.peridot.ore.basalt.desc=A chunk of peridot embedded in basalt.
+tile.betteroplenty.peridot.ore.granite.desc=A chunk of peridot embedded in granite.
+tile.betteroplenty.peridot.ore.limestone.desc=A chunk of peridot embedded in limestone.
+tile.betteroplenty.peridot.ore.permafrost.desc=A chunk of peridot embedded in permafrost.
+tile.betteroplenty.topaz.ore.basalt.desc=A chunk of topaz embedded in basalt.
+tile.betteroplenty.topaz.ore.granite.desc=A chunk of topaz embedded in granite.
+tile.betteroplenty.topaz.ore.limestone.desc=A chunk of topaz embedded in limestone.
+tile.betteroplenty.topaz.ore.permafrost.desc=A chunk of topaz embedded in permafrost.
+tile.betteroplenty.tanzanite.ore.basalt.desc=A chunk of tanzanite embedded in basalt.
+tile.betteroplenty.tanzanite.ore.granite.desc=A chunk of tanzanite embedded in granite.
+tile.betteroplenty.tanzanite.ore.limestone.desc=A chunk of tanzanite embedded in limestone.
+tile.betteroplenty.tanzanite.ore.permafrost.desc=A chunk of tanzanite embedded in permafrost.
+tile.betteroplenty.malachite.ore.basalt.desc=A chunk of malachite embedded in basalt.
+tile.betteroplenty.malachite.ore.granite.desc=A chunk of malachite embedded in granite.
+tile.betteroplenty.malachite.ore.limestone.desc=A chunk of malachite embedded in limestone.
+tile.betteroplenty.malachite.ore.permafrost.desc=A chunk of malachite embedded in permafrost.
+tile.betteroplenty.sapphire.ore.basalt.desc=A chunk of sapphire embedded in basalt.
+tile.betteroplenty.sapphire.ore.granite.desc=A chunk of sapphire embedded in granite.
+tile.betteroplenty.sapphire.ore.limestone.desc=A chunk of sapphire embedded in limestone.
+tile.betteroplenty.sapphire.ore.permafrost.desc=A chunk of sapphire embedded in permafrost.
+
+betteroplenty:record.traversia=Traversia
+betteroplenty:record.muddy=Muddy
+subtitles.betteroplenty.record.traversia=Traversia playing
+subtitles.betteroplenty.record.muddy=Muddy playing
+
+# Mob sounds. BTA draws a subtitle for every sound event that names one, so a missing key here
+# shows the raw string on screen rather than nothing -- these are not optional decoration.
+subtitles.betteroplenty.mob.bird.say=Bird chirps
+subtitles.betteroplenty.mob.bird.hurt=Bird hurts
+subtitles.betteroplenty.mob.wasp.say=Wasp buzzes
+subtitles.betteroplenty.mob.wasp.hurt=Wasp hurts
+subtitles.betteroplenty.mob.pixie.say=Pixie chimes
+subtitles.betteroplenty.mob.pixie.hurt=Pixie hurts
+subtitles.betteroplenty.mob.phantom.say=Phantom moans
+subtitles.betteroplenty.mob.phantom.hurt=Phantom hurts
+subtitles.betteroplenty.mob.phantom.death=Phantom dies
+
+# BOP foods, on BTA's heal model -- see BOPFoods for the hunger->healAmount mapping.
+item.betteroplenty.berries.name=Berries
+item.betteroplenty.shroom_powder.name=Shroom Powder
+item.betteroplenty.wild_carrots.name=Wild Carrots
+item.betteroplenty.sunflower_seeds.name=Sunflower Seeds
+item.betteroplenty.salad_fruit.name=Fruit Salad
+item.betteroplenty.salad_veggie.name=Veggie Salad
+item.betteroplenty.salad_shroom.name=Shroom Salad
+item.betteroplenty.earth.name=Earth
+item.betteroplenty.persimmon.name=Persimmon
+item.betteroplenty.filled_honeycomb.name=Filled Honeycomb
+item.betteroplenty.ambrosia.name=Ambrosia
+item.betteroplenty.turnip.name=Turnip
+item.betteroplenty.berries.desc=Small tart berries from a berry bush.
+item.betteroplenty.shroom_powder.desc=Ground toadstool. Barely a meal, and it usually turns your stomach.
+item.betteroplenty.wild_carrots.desc=A carrot pulled straight from the wild. Rough on the way down.
+item.betteroplenty.sunflower_seeds.desc=Seeds shaken from a sunflower head.
+item.betteroplenty.salad_fruit.desc=Fruit in a bowl. The bowl comes back.
+item.betteroplenty.salad_veggie.desc=Vegetables in a bowl. The bowl comes back.
+item.betteroplenty.salad_shroom.desc=Mushrooms in a bowl. The bowl comes back.
+item.betteroplenty.earth.desc=It is a lump of earth. You can eat it. It does nothing.
+item.betteroplenty.persimmon.desc=A sweet orange fruit from an orchard tree.
+item.betteroplenty.filled_honeycomb.desc=Honeycomb, still full.
+item.betteroplenty.ambrosia.desc=Food of the gods. Heals at once, and returns the jar.
+item.betteroplenty.turnip.desc=A humble root vegetable.
+
+# --- The turnip crop and its seed. Upstream: item.bop.turnipseeds.name=Turnip Seeds; the crop
+#     BLOCK has no upstream lang key at all, because 1.6.4 named it off the item form and BOP
+#     never gave that one either. The name here is the plain one a player would expect.
+#
+# WARNING: THE TWO SIDES USE DIFFERENT KEY CONVENTIONS, and only one of them is audited.
+#     A BLOCK key turns underscores into DOTS -- turnip_crop -> tile.betteroplenty.turnip.crop
+#     (compare tile.betteroplenty.holy.stone.mossy above). An ITEM key KEEPS the underscore
+#     -- turnip_seeds -> item.betteroplenty.turnip_seeds (compare item.betteroplenty.wood_scythe).
+#     Writing the block key with an underscore is caught at startup by the lang audit;
+#     writing the item key with dots is NOT caught by anything and ships an item whose name
+#     in the menu is its own raw key.
+item.betteroplenty.turnip_seeds.name=Turnip Seeds
+item.betteroplenty.turnip_seeds.desc=Plant them on farmland. Shaken loose from koru, one time in sixty-four.
+tile.betteroplenty.turnip.crop.name=Turnips
+tile.betteroplenty.turnip.crop.desc=Turnips growing on tilled earth.
+
+# --- Achievements (achievements agent) -----------------------------------------------------
+# Ported from BOP 1.2.1 core/BOPAchievements.java. Upstream declares 17 and 8 are reachable in
+# this port; the other 9 fire on unported content and are one row each in bop-port-atlas.md 9b,
+# with their strings still sitting unused in biomesoplenty.lang.
+#
+# KEYS ARE RENAMESPACED, STRINGS ARE NOT. Achievement(id, name, ...) builds the lang keys as
+# `achievement.<name>` and `achievement.<name>.desc`, and `name` is ours to choose -- so upstream's
+# `achievement.bop.achFlower` becomes `achievement.betteroplenty.flower`, matching every other key
+# in this file (tile.betteroplenty.*, worldType.betteroplenty.bop). The English is verbatim.
+#
+# NOTE, for Colin -- BTA and BOP disagree about what a `.desc` is for, and BOP wins here on rule 1.
+# Every BTA achievement description is an instruction ("Fly a pig off a cliff.", "Collect every
+# color of firefly in a jar."); every BOP one is a joke that does not say how to earn it ("Groovy,
+# man."). ScreenAchievements shows `.desc` as the only body text, so a player reads these to find
+# out what to do and these will not tell them. Transcribed anyway, because rewriting them is
+# rewriting BOP's voice -- but it is a content call, so it is escalated in atlas 9b rather than
+# settled here.
+achievement.betteroplenty.flower=Flower Child
+achievement.betteroplenty.flower.desc=Become one with nature!
+achievement.betteroplenty.flower_band=Flower Power
+achievement.betteroplenty.flower_band.desc=Groovy, man.
+achievement.betteroplenty.dart_blower=Full Auto
+achievement.betteroplenty.dart_blower.desc=You'll shoot your eye out, kid!
+achievement.betteroplenty.scythe=Plant Killer
+achievement.betteroplenty.scythe.desc=The grim reaper's day job.
+achievement.betteroplenty.berry=Berry Picking
+achievement.betteroplenty.berry.desc=The simple things in life...
+achievement.betteroplenty.moss=A Rolling Stone
+achievement.betteroplenty.moss.desc=It gathers none of this.
+achievement.betteroplenty.thorn=Rather Thorny
+achievement.betteroplenty.thorn.desc=Deadlier than cacti!
+achievement.betteroplenty.coral=Nutritious
+achievement.betteroplenty.coral.desc=How about a big piece of steamed coral?
+
+# The page's own row in the sidebar. Upstream names its page "Biomes O' Plenty"
+# (BOPAchievements.java:79); the description takes BTA's form for the other three
+# (gui.achievements.page.vanilla.desc is "Achievements from Better than Adventure!").
+gui.achievements.page.betteroplenty.name=Better O' Plenty
+gui.achievements.page.betteroplenty.desc=Achievements from Better O' Plenty!
+
+# ---- BOP's Nether: six biomes and the world type that carries them ----
+#
+# Names are upstream's setBiomeName (core/BOPBiomes.java:241-246), with ONE change, and it is the
+# rule in PORTING-STANDARD.md 7 rather than taste: upstream calls netherBase simply "Nether", which
+# in BTA is the name of a whole dimension holding nine biomes of its own. "Nether Wastes" keeps
+# upstream's sense (the plain, featureless one) in vocabulary BTA already uses.
+biome.betteroplenty.bop.nether_base=Nether Wastes
+biome.betteroplenty.bop.nether_garden=Undergarden
+biome.betteroplenty.bop.nether_desert=Corrupted Sands
+biome.betteroplenty.bop.nether_lava=Phantasmagoric Inferno
+biome.betteroplenty.bop.nether_bone=Boneyard
+biome.betteroplenty.bop.nether_blood=Bloody Heap
+
+# The Nether world type. Not selectable on its own -- a world type is chosen per dimension through
+# a WorldTypeGroups.Group, and this one is named by the BOP group for Dimension.NETHER, exactly as
+# BTA pairs NETHER_BETA_173 with OVERWORLD_BETA_173. It still needs a name: the Create World screen
+# and the save's DimensionData both resolve one.
+worldType.betteroplenty.bop.nether.name=Better O' Plenty Nether
+worldType.betteroplenty.bop.nether.desc=Better O' Plenty's six Nether biomes, woven into BTA's own.
+
+# ---- miscItems: the seven that are not dyes (items lane) --------------------------------------
+#
+# Upstream is one item with twelve metadata slots (items/ItemBOP.java); five of them are the dyes
+# BOP had to invent because vanilla 1.6.4 had no flower source for those colours, and those fold
+# onto Items.DYE by rule 6. These are the other seven, registered standalone.
+#
+# NAMES ARE UPSTREAM'S OWN, verbatim from its en_US.lang:316-327. PORTING-STANDARD 7 says to take
+# BTA's vocabulary where BTA has an opinion about a kind of thing -- it has none about any of these
+# (no ash item, no honeycomb, no soul, no pixie), so upstream's wording stands, "Pile of Ashes" and
+# all. "Celestial Crystal Shard" is likewise upstream's full name, not an expansion of ours.
+item.betteroplenty.mud_brick.name=Mud Brick
+item.betteroplenty.ash.name=Pile of Ashes
+item.betteroplenty.empty_honeycomb.name=Empty Honeycomb
+item.betteroplenty.flesh_chunk.name=Chunk of Flesh
+item.betteroplenty.crystal_shard.name=Celestial Crystal Shard
+item.betteroplenty.ghastly_soul.name=Ghastly Soul
+item.betteroplenty.pixie_dust.name=Pixie Dust
+item.betteroplenty.mud_brick.desc=Swamp mud, fired hard. Four of them bake down into one block.
+item.betteroplenty.ash.desc=Cold ash raked off the Deadlands. Pack it tight enough and it becomes coal.
+item.betteroplenty.empty_honeycomb.desc=Wax cells, drained of their honey.
+item.betteroplenty.flesh_chunk.desc=A slab of something that was recently alive.
+item.betteroplenty.crystal_shard.desc=A splinter of celestial crystal. It is colder than it looks.
+item.betteroplenty.ghastly_soul.desc=Something left behind in the Nether. It will not share a pocket with another.
+item.betteroplenty.pixie_dust.desc=Glittering dust shaken loose from a pixie.
+# The three filled jars, ids 31000-31002. Names are upstream's own, verbatim from its
+# en_US.lang:325-327 -- "Poison Extract Jar" and not "Poison Jar", which is what every internal
+# reference calls it. BTA has an opinion about the CONTAINER (it ships a jar, and BOP's empty one
+# is dropped for it) but none about what BOP puts inside, so upstream's wording stands.
+item.betteroplenty.jar_honey.name=Honey Jar
+item.betteroplenty.jar_poison.name=Poison Extract Jar
+item.betteroplenty.jar_pixie.name=Pixie Jar
+item.betteroplenty.jar_honey.desc=A jar of wild honey, thick and slow. Sweet enough to be worth the stings.
+item.betteroplenty.jar_poison.desc=Poison ivy wrung out into a jar. Not for drinking.
+item.betteroplenty.jar_pixie.desc=A pixie, caught and corked. It is still glowing, and still furious.
+# The Nether's five blocks, ids 2160-2164. Keys are DOT-separated: HalpLibe turns a block's
+# underscored name into its translation key, so `overgrown_netherrack` is
+# `tile.betteroplenty.overgrown.netherrack` and an underscored line here would localise nothing.
+tile.betteroplenty.overgrown.netherrack.name=Overgrown Netherrack
+tile.betteroplenty.overgrown.netherrack.desc=Netherrack gone soft under a fungal crust. Things will grow on it that will grow nowhere else down here.
+tile.betteroplenty.wither.wart.name=Wither Wart
+tile.betteroplenty.wither.wart.desc=A dark red growth that only takes to soul sand, and only in the dark.
+tile.betteroplenty.flesh.name=Flesh
+tile.betteroplenty.flesh.desc=Warm, yielding ground. You sink into it a little, and it does not let you hurry.
+tile.betteroplenty.mushroom.cap.brown.name=Brown Mushroom Cap
+tile.betteroplenty.mushroom.cap.brown.desc=A slab of giant mushroom. Break it apart for the small ones growing on it.
+tile.betteroplenty.mushroom.cap.red.name=Red Mushroom Cap
+tile.betteroplenty.mushroom.cap.red.desc=A slab of giant mushroom. Break it apart for the small ones growing on it.
+# ---- Honey: the fluid, the hive and the block (honey lane, 2026-07-27) ----
+#
+# All of it is NEW IN BOP 1.2.1 -- 1.1.1 has no honey at all, which is why none of it appears in
+# the atlas's 0-7 survey. Names are upstream's own from biomesoplenty.lang (tile.bop.hive.*,
+# tile.bop.honeyBlock, fluid.bop.honey, item.bop.bopBucket.honey), with upstream's word order kept.
+#
+# NOTE the dot-separated block keys: HalpLibe rewrites a block name of "hive_honeycomb_empty" into
+# tile.betteroplenty.hive.honeycomb.empty, so an underscored line here would localise nothing.
+tile.betteroplenty.hive.honeycomb.name=Honeycomb Block
+tile.betteroplenty.hive.name=Hive Block
+tile.betteroplenty.hive.honeycomb.empty.name=Empty Honeycomb Block
+tile.betteroplenty.hive.honeycomb.filled.name=Filled Honeycomb Block
+tile.betteroplenty.honey.block.name=Honey Block
+tile.betteroplenty.hive.honeycomb.desc=Raw comb from a wasp hive. Cut it out with an axe.
+tile.betteroplenty.hive.desc=The papery shell of a wasp hive, hung high in the Nether.
+tile.betteroplenty.hive.honeycomb.empty.desc=A sealed brood cell. Something is still in there.
+tile.betteroplenty.hive.honeycomb.filled.desc=A cell of comb still full of honey.
+tile.betteroplenty.honey.block.desc=A solid block of honey. Light passes through it.
+
+# The honey fluid. Two blocks, as every BTA fluid is. It does not spread the way the other two do:
+# upstream's honey is a finite Forge fluid, and the port expresses that as a source that falls but
+# never creeps -- see biomesoplenty.fluids.FluidHoney.
+tile.betteroplenty.fluid.honey.still.name=Still Honey
+tile.betteroplenty.fluid.honey.flowing.name=Flowing Honey
+tile.betteroplenty.fluid.honey.still.desc=Honey that does not flow when placed. Wading through it is slow going.
+tile.betteroplenty.fluid.honey.flowing.desc=Honey that flows when placed, though never very far.
+
+# Honey on the shared bucket-state axis: registering the state gives it to every bucket at once.
+item.betteroplenty.bucket_amethyst.honey.name=Amethyst Bucket of Honey
+item.betteroplenty.bucket_amethyst.honey.desc=A double bucket of thick amber honey. Pour it, do not drink it.
+item.bucket.iron.honey.name=Iron Bucket of Honey
+item.bucket.iron.honey.desc=A bucket of thick amber honey. Pour it, do not drink it.
+item.bucket.steel.honey.name=Steel Bucket of Honey
+item.bucket.steel.honey.desc=A large bucket of thick amber honey. Pour it, do not drink it.
+
+# Bittersweet. Upstream's achievement.bop.achHoney, verbatim; it fires on picking up a filled
+# honeycomb, which the hive's filled cells now drop.
+achievement.betteroplenty.honey=Bittersweet
+achievement.betteroplenty.honey.desc=The land of blood and honey.
+
+# achPromised -- upstream's special-framed arrival in the Promised Land.
+achievement.betteroplenty.promised=Movin' On Up!
+achievement.betteroplenty.promised.desc=Welcome to the Promised Land!
+
+# The rest of the honey branch, 2026-07-29 -- all three strings verbatim from upstream's
+# en_US.lang:440-445. They came off the deferred list when their content turned out to have landed
+# in three other lanes; see BOPAchievements' class note.
+#
+# "A master of disguise" is upstream's joke about the wither wart looking like nether wart, not
+# about the Wither -- BOP's wart has nothing to do with that mob and BTA has no Wither at all.
+achievement.betteroplenty.wither_wart=Decay
+achievement.betteroplenty.wither_wart.desc=A master of disguise.
+
+# "The next Dampe" is upstream's reference to the Zelda gravekeeper; kept verbatim like every other
+# string in this file, jokes included.
+achievement.betteroplenty.grave=Gravedigger
+achievement.betteroplenty.grave.desc=The next Dampe.
+
+achievement.betteroplenty.phantom=Phantom Menace
+achievement.betteroplenty.phantom.desc=Stealer of souls...
+
+# achCelestial, upstream's en_US.lang:449-450. Fires on picking up a crystal shard, which the
+# Promised Land's crystal blocks drop four of.
+achievement.betteroplenty.celestial=Blue Sky
+achievement.betteroplenty.celestial.desc=I am the one who...blocks...
+
+# The Promised Land's ground, ids 2200-2205. Upstream packs the four stone variants into one
+# metadata block (BlockBOPSkystone) and gives none of them a description, so the names are its
+# type strings read out and the descriptions are this port's.
+tile.betteroplenty.holy.stone.name=Holy Stone
+tile.betteroplenty.holy.stone.desc=The pale bedrock of the Promised Land. Amethyst grows in it, and nowhere else.
+tile.betteroplenty.holy.cobble.name=Holy Cobblestone
+tile.betteroplenty.holy.cobble.desc=Holy stone, broken and reset.
+tile.betteroplenty.holy.bricks.name=Holy Bricks
+tile.betteroplenty.holy.bricks.desc=Holy stone cut square. Whoever cut it is long gone.
+tile.betteroplenty.holy.stone.mossy.name=Mossy Holy Stone
+tile.betteroplenty.holy.stone.mossy.desc=Old holy stone, gone green at the seams.
+tile.betteroplenty.holy.grass.name=Holy Grass
+tile.betteroplenty.holy.grass.desc=Turf that keeps its colour without a sun to feed it.
+tile.betteroplenty.holy.dirt.name=Holy Dirt
+tile.betteroplenty.holy.dirt.desc=The soil under the Promised Land. It shifts underfoot like gravel.
+
+# The giant mushroom's trunk, split out of the cap's metadata on 2026-07-28.
+tile.betteroplenty.mushroom.stem.name=Giant Mushroom Stem
+tile.betteroplenty.mushroom.stem.desc=The pale trunk under a giant mushroom's cap.
+
+# The Promised Land -- dimension 3, and its first biome.
+dimension.promised.name=The Promised Land
+worldType.betteroplenty.bop.promised=Promised Land
+biome.betteroplenty.bop.promised_plains=Majestic Meadow
+biome.betteroplenty.bop.promised_forest=Wonderous Woods
+biome.betteroplenty.bop.promised_shrub=Sublime Shrubland
+biome.betteroplenty.bop.promised_swamp=Blessed Bog
+tile.betteroplenty.holy.tall.grass.name=Holy Tall Grass
+tile.betteroplenty.holy.tall.grass.desc=Bright turf-grass that needs no sun.
+tile.betteroplenty.crystal.name=Crystal
+tile.betteroplenty.crystal.desc=A clear growth that hangs from holy stone and lights itself.
+tile.betteroplenty.cloud.name=Cloud
+tile.betteroplenty.cloud.desc=Solid enough to stand on, if you can reach it.
+tile.betteroplenty.portal.promised.name=Promised Land Portal
+tile.betteroplenty.portal.promised.desc=A gateway to the Promised Land.
+
+# The Ancient Staff and its three parts. Names are upstream's own
+# (`item.bop.ancientStaff.*.name`), which is why the spent one is "Depleted" rather than "Broken"
+# even though its texture file is ancientstaffbroken.png.
+item.betteroplenty.ancient_staff.name=Ancient Staff
+item.betteroplenty.ancient_staff_handle.name=Ancient Staff Handle
+item.betteroplenty.ancient_staff_pole.name=Ancient Staff Pole
+item.betteroplenty.ancient_staff_topper.name=Ancient Staff Topper
+item.betteroplenty.ancient_staff_depleted.name=Depleted Ancient Staff
+
+item.betteroplenty.ancient_staff.desc=Swing it under open sky and the Promised Land comes to you. Once.
+item.betteroplenty.ancient_staff_handle.desc=Sapphire and tanzanite set in pale stone.
+item.betteroplenty.ancient_staff_pole.desc=Peridot and malachite set in pale stone.
+item.betteroplenty.ancient_staff_topper.desc=Ruby and topaz under a Gem Star.
+item.betteroplenty.ancient_staff_depleted.desc=Spent. Another Gem Star would wake it.
+
+# The staff's chat lines. The first two are upstream's `phrase.bop.promisedPortalOverworld` and
+# `phrase.bop.promisedPortalOther`, verbatim; the second two are this port's, because upstream
+# refuses silently and a one-shot item that appears to do nothing reads as a broken one.
+phrase.betteroplenty.promisedPortalOverworld=A gateway to the Promised Land has appeared in the sky above.
+phrase.betteroplenty.promisedPortalOther=A gateway to the Overworld has appeared in the sky above.
+phrase.betteroplenty.staffWrongDimension=The staff is silent here.
+phrase.betteroplenty.staffNoRoom=There is no room in the sky above.

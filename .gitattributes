@@ -1,0 +1,38 @@
+* text=auto eol=lf
+gradlew text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+gradle-wrapper.jar -text -diff -merge -filter
+
+# --- Publish boundary ---------------------------------------------------------------------------
+#
+# `export-ignore` keeps a path out of `git archive`, and `git archive HEAD` is exactly how
+# ~/.gittools/publish.sh builds the tree it pushes. So everything marked here stays tracked and
+# versioned locally while never reaching the public repository -- which is the right shape for
+# material that is real work but is nobody else's business.
+#
+# Verify what would actually ship with:
+#     git archive HEAD | tar -t
+#
+# Note the `tools/**` glob below rather than `tools/`. Marking a *directory* export-ignore makes
+# git archive skip it without descending, so the three `-export-ignore` re-inclusions under it are
+# never even consulted and the files silently do not ship. The `**` form marks the files instead,
+# git still walks in, and the exceptions take effect. Checked both ways; do not "simplify" it back.
+#
+# docs/ is the porting process, not the mod: lane charters, escalation inboxes, play reports, a
+# running record of what broke and what it taught. Several carry absolute paths from this machine
+# and one carries an email address, so the boundary is a leak guard as well as an editorial one.
+docs/** export-ignore
+
+# The analysis tools read from _reference/, which is gitignored upstream clones of BOP and a
+# decompiled BTA -- so they cannot run against a clone of the public repo and would only mislead.
+# The three exceptions below are the asset-provenance machinery, and those ARE published on
+# purpose: they are how the licence position is checked, and a claim about what is in the jar is
+# worth more when the thing that verifies it is in the open.
+tools/** export-ignore
+tools/classify_asset_provenance.py -export-ignore
+tools/gen_asset_bridge_manifest.py -export-ignore
+tools/strip_bridged_assets.py -export-ignore
+
+# A local dev convenience that names this machine's cmd.exe configuration and the agent harness.
+run-client.bat export-ignore

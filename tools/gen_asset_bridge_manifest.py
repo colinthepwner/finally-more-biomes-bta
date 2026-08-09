@@ -1,0 +1,214 @@
+#!/usr/bin/env python3
+"""
+Generate assets/betteroplenty/asset-bridge.properties from the provenance classification.
+
+The manifest is what BOPAssetBridge reads at runtime: it maps a file inside a copy of
+Biomes O' Plenty that the *player* supplies onto the path this mod wants that art at,
+inside a generated texture pack. This mod ships none of the files on the left.
+
+    python tools/classify_asset_provenance.py --json build/provenance.json
+    python tools/gen_asset_bridge_manifest.py --provenance build/provenance.json
+
+Generated rather than hand-written because there are 450 of them and because a hand list
+would drift the moment the importer's precedence changed. The classifier decides what is
+upstream art by comparing bytes; this only reshapes that answer into a properties file.
+
+Keys are the last two path segments, not the base name
+-----------------------------------------------------
+Mo' Creatures gets away with base names because mob skins have unique ones. BOP does not:
+`blank.png` is in both `blocks/` and `items/`, `dandelion.png` is a block and a particle,
+six armour textures share a name with their item icon, and four mobs each have a
+`say.ogg` and a `hurt.ogg`. Thirteen collisions in all, every one resolved by keeping the
+parent directory. The bridge still falls back to a base-name match for any key written
+without a slash, which is what the Minecraft section below relies on.
+
+One key can feed several paths
+------------------------------
+The right-hand side is a comma-separated list, for the places where one upstream file is
+the source of several files here -- BOP draws one flower band and this port needs it as
+both an armour layer and an inventory icon, and `bones_large.png` is byte-identical to
+its medium and small siblings upstream.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+from collections import defaultdict
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[1]
+DEFAULT_OUT = REPO / "src/main/resources/assets/betteroplenty/asset-bridge.properties"
+
+PACK_PREFIX = "assets/"
+
+# Vanilla art this port needs because the BOP features that place these blocks place
+# *vanilla* blocks BTA 8.0 does not ship, so the block had to be ported alongside the
+# feature and needs its vanilla face. Mojang's, so it is bridged rather than shipped, out
+# of whatever Minecraft jar or resource pack the player already has.
+#
+# Keyed on base name alone: the directory moved from `textures/blocks/` to
+# `textures/block/` in 1.13, and none of these names collides with anything in BOP.
+MINECRAFT_SECTION = [
+    ("mycelium_top.png", ["betteroplenty/textures/block/mycel_top.png"]),
+    ("mycelium_side.png", ["betteroplenty/textures/block/mycel_side.png"]),
+    ("mushroom_block_skin_brown.png", ["betteroplenty/textures/block/mushroom_skin_brown.png"]),
+    ("mushroom_block_skin_red.png", ["betteroplenty/textures/block/mushroom_skin_red.png"]),
+    ("mushroom_block_skin_stem.png", ["betteroplenty/textures/block/mushroom_skin_stem.png"]),
+    ("hardened_clay.png", ["betteroplenty/textures/block/hardened_clay.png"]),
+    ("hardened_clay_stained_orange.png", ["betteroplenty/textures/block/hardened_clay_stained_orange.png"]),
+    ("hardened_clay_stained_red.png", ["betteroplenty/textures/block/hardened_clay_stained_red.png"]),
+]
+
+# Order and headings for the BOP half, by upstream directory. Anything not named here is
+# emitted under "Other" rather than dropped, so a new upstream directory shows up in the
+# diff instead of vanishing.
+SECTIONS = [
+    ("blocks", "Blocks", "BOP's block art. The bulk of the mod."),
+    ("items", "Items", "Item icons, including the ones this port also uses as armour layers."),
+    ("armor", "Armour layers",
+     "Worn-armour overlays. Each is also the source of its own inventory icon, above --\n"
+     "# one upstream file, two paths, which is what the comma-separated value is for."),
+    ("mobs", "Mob skins", "The four flying mobs this port carries."),
+    ("particles", "Particles",
+     "Only dandelion, which BOP draws as a single 8x8 sprite. The other three particle\n"
+     "# textures are 128x128 sheets that this mod cuts into frames itself, so they are\n"
+     "# generated rather than bridged and do not appear here."),
+    ("records", "Music discs",
+     "The two BOP discs. Audio is the one asset class here that is neither code nor\n"
+     "# texture, and a music track can carry authorship distinct from the mod's, so it is\n"
+     "# bridged like everything else and called out separately in the NOTICE."),
+    ("mob", "Mob sounds",
+     "Keyed by mob directory, because all four mobs have a say.ogg and a hurt.ogg."),
+]
+
+
+def normalise(path: str) -> str:
+    return path.replace("\\", "/")
+
+
+def key_for(upstream: str) -> str:
+    parts = normalise(upstream).split("/")
+    return (parts[-2] + "/" + parts[-1]).lower()
+
+
+def choose_upstream(record: dict) -> str:
+    """
+    Which upstream name to key a shipped file on, when several hold the same bytes.
+
+    Prefer the candidate whose own base name matches the shipped file's -- `bones_medium`
+    from `bones_medium.png` rather than from its byte-identical `bones_large.png` sibling.
+    It reads better, and it stays correct if a later BOP redraws one of the three.
+    """
+    candidates = [record["upstream"]] + record.get("also_in", [])
+    target = Path(record["path"]).name.lower()
+    for candidate in candidates:
+        if Path(normalise(candidate)).name.lower() == target:
+            return candidate
+    return record["upstream"]
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--provenance", type=Path, required=True)
+    parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    args = parser.parse_args()
+
+    data = json.loads(args.provenance.read_text(encoding="utf-8"))
+
+    # key -> set of pack paths. A set because several shipped files can resolve to the
+    # same key and the same destination via different upstream candidates.
+    mapping: dict[str, set[str]] = defaultdict(set)
+    section_of: dict[str, str] = {}
+
+    for record in data["bridged"]:
+        # Frame timings, not art. Shipped instead -- see the NOTICE. Bridging a number
+        # would leave every fluid static for anyone without the archive.
+        if record["path"].endswith(".mcmeta"):
+            continue
+        upstream = normalise(choose_upstream(record))
+        key = key_for(upstream)
+        mapping[key].add(PACK_PREFIX + record["path"])
+        # Grouped by upstream directory, except that mob sounds sit one level deeper --
+        # sound/mob/<mob>/say.ogg -- so their parent is the mob's name, not a category.
+        # Collapse those onto one heading rather than getting a section per mob.
+        section_of[key] = "mob" if "/sound/" in upstream else Path(upstream).parent.name.lower()
+
+    grouped: dict[str, list[str]] = defaultdict(list)
+    for key in mapping:
+        grouped[section_of[key]].append(key)
+
+    out: list[str] = []
+    out.append("# Asset bridge manifest -- Better O' Plenty")
+    out.append("#")
+    out.append("# Maps a file inside a player-supplied copy of Biomes O' Plenty onto the path this mod")
+    out.append("# wants that art at. THIS MOD SHIPS NONE OF THE FILES ON THE LEFT. The bridge only ever")
+    out.append("# reads a copy the player already has on disk; nothing is downloaded and nothing is")
+    out.append("# redistributed.")
+    out.append("#")
+    out.append("#   <trailing path inside the archive> = <path inside the generated texture pack>")
+    out.append("#")
+    out.append("# Keys are the last two path segments, lower case, because BOP has thirteen base-name")
+    out.append("# collisions -- blank.png is a block and an item, dandelion.png is a block and a")
+    out.append("# particle, six armour textures share a name with their item icon, and all four mobs")
+    out.append("# have a say.ogg and a hurt.ogg. A key written without a slash is matched on base name")
+    out.append("# instead, which is what the Minecraft section at the bottom uses.")
+    out.append("#")
+    out.append("# The value may be a comma-separated list, for one upstream file that feeds several")
+    out.append("# paths here.")
+    out.append("#")
+    out.append("# GENERATED by tools/gen_asset_bridge_manifest.py -- do not hand-edit.")
+    out.append("")
+
+    emitted: set[str] = set()
+    for directory, heading, blurb in SECTIONS:
+        keys = sorted(grouped.get(directory, []))
+        if not keys:
+            continue
+        emitted.add(directory)
+        out.append(f"# --- {heading} " + "-" * max(4, 78 - len(heading)))
+        for line in blurb.split("\n"):
+            out.append(f"# {line}" if not line.startswith("#") else line)
+        out.append("")
+        for key in keys:
+            paths = sorted(mapping[key])
+            out.append(f"{key} = {', \\\n    '.join(paths)}" if len(paths) > 1
+                       else f"{key} = {paths[0]}")
+        out.append("")
+
+    leftover = sorted(set(grouped) - emitted)
+    if leftover:
+        out.append("# --- Other " + "-" * 68)
+        out.append("# Upstream directories with no section above. If anything lands here, give it one.")
+        out.append("")
+        for directory in leftover:
+            for key in sorted(grouped[directory]):
+                paths = sorted(mapping[key])
+                out.append(f"{key} = {', '.join(paths)}")
+        out.append("")
+
+    out.append("# --- Minecraft " + "-" * 64)
+    out.append("# Vanilla art, from any Minecraft jar or resource pack the player already has. These")
+    out.append("# are Mojang's, not BOP's, and they are here because a handful of ported BOP features")
+    out.append("# place vanilla blocks that BTA 8.0 does not ship -- so the block had to come along and")
+    out.append("# needs its vanilla face. Matched on base name, because the directory was renamed from")
+    out.append("# textures/blocks/ to textures/block/ in 1.13 and these names collide with nothing.")
+    out.append("")
+    for name, paths in MINECRAFT_SECTION:
+        out.append(f"{name} = {', '.join(PACK_PREFIX + p for p in paths)}")
+    out.append("")
+
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text("\n".join(out), encoding="utf-8")
+
+    total = sum(len(v) for v in mapping.values())
+    print(f"wrote {args.out}")
+    print(f"  {len(mapping)} BOP keys -> {total} pack paths")
+    print(f"  {len(MINECRAFT_SECTION)} Minecraft keys -> {len(MINECRAFT_SECTION)} pack paths")
+    for directory, heading, _ in SECTIONS:
+        if grouped.get(directory):
+            print(f"    {heading:16} {len(grouped[directory]):4}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,18 @@
+{
+	"model_paths": [
+		"/assets/betteroplenty/models/entity/bird/bird.geo.json",
+		"/assets/betteroplenty/models/entity/wasp/wasp.geo.json",
+		"/assets/betteroplenty/models/entity/pixie/pixie.geo.json"
+	],
+	"renderers": {
+		"betteroplenty:bird": {
+			"main": "geometry.bird"
+		},
+		"betteroplenty:wasp": {
+			"main": "geometry.wasp"
+		},
+		"betteroplenty:pixie": {
+			"main": "geometry.pixie"
+		}
+	}
+}

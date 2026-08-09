@@ -1,0 +1,92 @@
+{
+  "record.traversia": {
+    "subtitle": "subtitles.betteroplenty.record.traversia",
+    "sounds": [
+      {
+        "name": "records/bopdisc.ogg",
+        "stream": true
+      }
+    ]
+  },
+  "record.muddy": {
+    "subtitle": "subtitles.betteroplenty.record.muddy",
+    "sounds": [
+      {
+        "name": "records/bopdiscmud.ogg",
+        "stream": true
+      }
+    ]
+  },
+  "mob.bird.say": {
+    "subtitle": "subtitles.betteroplenty.mob.bird.say",
+    "sounds": [
+      {
+        "name": "mob/bird/say.ogg"
+      }
+    ]
+  },
+  "mob.bird.hurt": {
+    "subtitle": "subtitles.betteroplenty.mob.bird.hurt",
+    "sounds": [
+      {
+        "name": "mob/bird/hurt.ogg"
+      }
+    ]
+  },
+  "mob.wasp.say": {
+    "subtitle": "subtitles.betteroplenty.mob.wasp.say",
+    "sounds": [
+      {
+        "name": "mob/wasp/say.ogg"
+      }
+    ]
+  },
+  "mob.wasp.hurt": {
+    "subtitle": "subtitles.betteroplenty.mob.wasp.hurt",
+    "sounds": [
+      {
+        "name": "mob/wasp/hurt.ogg"
+      }
+    ]
+  },
+  "mob.pixie.say": {
+    "subtitle": "subtitles.betteroplenty.mob.pixie.say",
+    "sounds": [
+      {
+        "name": "mob/pixie/say.ogg"
+      }
+    ]
+  },
+  "mob.pixie.hurt": {
+    "subtitle": "subtitles.betteroplenty.mob.pixie.hurt",
+    "sounds": [
+      {
+        "name": "mob/pixie/hurt.ogg"
+      }
+    ]
+  },
+  "mob.phantom.say": {
+    "subtitle": "subtitles.betteroplenty.mob.phantom.say",
+    "sounds": [
+      {
+        "name": "mob/phantom/say.ogg"
+      }
+    ]
+  },
+  "mob.phantom.hurt": {
+    "subtitle": "subtitles.betteroplenty.mob.phantom.hurt",
+    "sounds": [
+      {
+        "name": "mob/phantom/hurt.ogg"
+      }
+    ]
+  },
+  "mob.phantom.death": {
+    "subtitle": "subtitles.betteroplenty.mob.phantom.death",
+    "sounds": [
+      {
+        "name": "mob/phantom/death.ogg"
+      }
+    ]
+  }
+}
