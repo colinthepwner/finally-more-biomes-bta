@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/leaves/leaves",
+  "textures": {
+    "all": "betteroplenty:block/leaves_hellbark_fast"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "required": true,
+  "package": "com.betteroplenty.mixin",
+  "compatibilityLevel": "JAVA_${java}",
+  "remap": false,
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "BiomeRangeLookupMixin",
+    "ChunkDecoratorOverworldMixin",
+    "ChunkDecoratorSnowInvoker",
+    "ChunkReaderVersion1Mixin",
+    "ChunkReaderVersion2Mixin",
+    "ChunkReaderVersion3Mixin",
+    "ChunkSectionMixin",
+    "CreativeMenuContentsMixin",
+    "EntityBOPFluidMovementMixin",
+    "EntityItemAchievementMixin",
+    "FluidWaterlogSpreadMixin",
+    "ItemDyeGiantFlowerMixin",
+    "PlayerFlippersSwimMixin",
+    "PromisedLandFallCommonMixin",
+    "PortalHandlerMixin",
+    "SlotResultAchievementMixin",
+    "WorldFeatureClayMixin",
+    "WorldFeatureDungeonLootMixin",
+    "WorldFeatureFlowersMixin",
+    "WorldFeatureLabyrinthLootMixin",
+    "WorldFeatureLakeMixin",
+    "WorldFeatureLiquidMixin",
+    "WorldFeaturePumpkinMixin",
+    "WorldFeatureSpongeMixin",
+    "WorldFeatureSugarCaneMixin"
+  ],
+  "client": [
+    "client.ChunkRebuildGenerationMixin",
+    "client.FluidModelWaterlogMixin",
+    "client.FogClosenessMixin",
+    "client.LoadingScreenPromisedMixin",
+    "client.MinecraftAgentMixin",
+    "client.MinecraftPromisedAchievementMixin",
+    "client.PromisedLandFallMixin",
+    "client.SkyColorMixin",
+    "client.TextureManagerPortalMixin",
+    "client.TexturePackDefaultPackedMixin",
+    "client.TexturePackListBridgeMixin",
+    "client.TexturePackPackedMixin",
+    "client.TextureRegistryPackedMixin"
+  ]
+}

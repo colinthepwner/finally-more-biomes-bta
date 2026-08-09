@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/crops_wheat/template",
+  "textures": {
+    "crop": "betteroplenty:block/turnip_stage_0"
+  }
+}

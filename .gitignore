@@ -1,0 +1,32 @@
+.gradle/
+.idea/
+.vscode/
+bin/
+build/
+out/
+run/
+run-server/
+# runObfClient's own game directory. Ignored for the same reason run/ is, and with more urgency:
+# testing the asset bridge means putting a copy of BOP and a Minecraft jar in here, and neither is
+# ours to commit.
+run-obf/
+
+# Reference clones (upstream repos with their own licenses; kept local, never committed)
+_reference/
+
+# A decompiled BTA client, kept around to check API shapes against. Turnip Labs' code, and
+# committing it would redistribute the game -- the same rule _reference/ is here for.
+tools/bta_jar/
+
+# Root-level scratch files from API spikes.
+/Test.java
+/test_bta.java
+
+# BTA's log4j config writes here when a JVM is started with the client jar on its classpath and
+# the repo root as its working directory -- e.g. an offline harness run against BTA's own noise or
+# biome classes. Harmless, but it is not run/logs/ and it is not the log to read.
+logs/
+
+# Python bytecode from tools/
+__pycache__/
+*.pyc
