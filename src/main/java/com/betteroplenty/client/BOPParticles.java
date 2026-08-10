@@ -19,6 +19,17 @@ public final class BOPParticles {
 	public static final String MAGIC_TREE = "magictree";
 	public static final String PIXIE_TRAIL = "pixietrail";
 
+	public static void resolveTextures() {
+		for (String prefix : new String[]{"steam", "magictree", "pixietrail"}) {
+			for (int i = 0; i < 8; i++) {
+				net.minecraft.client.render.texture.stitcher.TextureRegistry
+					.getTexture("betteroplenty:particle/" + prefix + "_" + i);
+			}
+		}
+		net.minecraft.client.render.texture.stitcher.TextureRegistry
+			.getTexture("betteroplenty:particle/dandelion");
+	}
+
 	public static void register() {
 		ParticleDispatcher dispatcher = ParticleDispatcher.getInstance();
 		int added = 0;
