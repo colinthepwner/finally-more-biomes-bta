@@ -11,7 +11,7 @@ A port of **Biomes O' Plenty** to **Better than Adventure!** `8.0.1`, built on B
 |---|---|
 | **Minecraft / BTA** | Better than Adventure! `8.0.1` (`release` channel) |
 | **Mod loader** | Babric / fabric-loader `0.18.4-bta.11` |
-| **Requires** | HalpLibe `6.1.4+8.0` |
+| **Requires** | HalpLibe `6.1.4+8.0` — ships inside the jar, no separate download |
 | **Java** | 17 |
 | **Licence** | CC BY-NC-ND 4.0, inherited from Biomes O' Plenty |
 
@@ -28,11 +28,12 @@ other.
 ## Install
 
 1. Install [Better than Adventure!](https://betterthanadventure.net/) `8.0.1` with Babric.
-2. Install [HalpLibe](https://github.com/Turnip-Labs/bta-halplibe/releases) `6.1.4+8.0` into `mods/`.
-3. Drop `betteroplenty-<version>+8.0.1.jar` into `mods/`.
-4. **Drop your own copy of Biomes O' Plenty somewhere under your game directory.** That is the
+2. Drop `betteroplenty-<version>+8.0.1.jar` into `mods/`. It carries
+   [HalpLibe](https://github.com/Turnip-Labs/bta-halplibe) inside it; if your instance already has
+   HalpLibe, the newest copy wins.
+3. **Drop your own copy of Biomes O' Plenty somewhere under your game directory.** That is the
    whole step — see below.
-5. Start a new world and pick the **Finally More Biomes** world type.
+4. Start a new world and pick the **Finally More Biomes** world type.
 
 ## Textures and sounds — the asset bridge
 
