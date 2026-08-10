@@ -3,6 +3,7 @@ package com.betteroplenty.world;
 import com.betteroplenty.BetterOPlenty;
 import com.betteroplenty.world.nether.WorldTypeNetherBOP;
 import net.minecraft.core.block.Blocks;
+import net.minecraft.core.data.registry.Registries;
 import net.minecraft.core.world.Dimension;
 import net.minecraft.core.world.World;
 import net.minecraft.core.world.biome.Biome;
@@ -17,6 +18,9 @@ import net.minecraft.core.world.type.WorldTypeGroups;
 import net.minecraft.core.world.type.WorldTypes;
 import net.minecraft.core.world.type.overworld.WorldTypeOverworld;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class WorldTypeBOP extends WorldTypeOverworld {
 
@@ -48,7 +52,29 @@ public class WorldTypeBOP extends WorldTypeOverworld {
 			return;
 		}
 
-		WorldTypeGroups.Group group = new WorldTypeGroups.Group(BOP);
+		WorldTypeGroups.Group group = new WorldTypeGroups.Group(BOP) {
+			@Override
+			public WorldType get(Dimension dimension) {
+				try {
+					return super.get(dimension);
+				} catch (NullPointerException hole) {
+					WorldType fallback = dimension.defaultWorldType;
+					if (fallback == null) {
+						throw new IllegalStateException("The BOP world type group has no world "
+							+ "type for dimension " + dimensionId(dimension) + ", and that "
+							+ "dimension declares no default of its own. It was registered after "
+							+ "Finally More Biomes published its world type, by a mod that did "
+							+ "not seed the existing groups.", hole);
+					}
+					with(dimension, fallback);
+					BetterOPlenty.LOGGER.warn("BOP world type group: dimension {} was registered "
+						+ "after the group was built; seeded its default world type '{}' so world "
+						+ "creation cannot crash on it.", dimensionId(dimension),
+						Registries.WORLD_TYPES.getKey(fallback));
+					return fallback;
+				}
+			}
+		};
 
 		for (Dimension dimension : Dimension.getDimensionList().values()) {
 			WorldType type;
@@ -63,10 +89,53 @@ public class WorldTypeBOP extends WorldTypeOverworld {
 		}
 		WorldTypeGroups.GROUPS.add(group);
 
+		List<String> seeded = new ArrayList<>();
+		for (WorldTypeGroups.Group candidate : WorldTypeGroups.GROUPS) {
+			for (Dimension dimension : Dimension.getDimensionList().values()) {
+				try {
+					candidate.get(dimension);
+				} catch (NullPointerException hole) {
+					WorldType fallback = dimension.defaultWorldType;
+					if (fallback == null) {
+						BetterOPlenty.LOGGER.error("World type group '{}' has no entry for "
+							+ "dimension {}, which declares no default world type either. "
+							+ "Creating a world with that group will crash; nothing sane to "
+							+ "seed.", describe(candidate), dimensionId(dimension));
+						continue;
+					}
+					candidate.with(dimension, fallback);
+					seeded.add("'" + describe(candidate) + "' had no entry for dimension "
+						+ dimensionId(dimension) + ", seeded '"
+						+ Registries.WORLD_TYPES.getKey(fallback) + "'");
+				}
+			}
+		}
+		if (!seeded.isEmpty()) {
+			BetterOPlenty.LOGGER.warn("World type groups: {} hole(s) seeded -- a mod initialised "
+				+ "the world-type list before every dimension was registered, which would have "
+				+ "crashed world creation with an NPE in WorldTypeGroups.Group.get: {}.",
+				seeded.size(), String.join("; ", seeded));
+		}
+
 		BetterOPlenty.LOGGER.info(
-			"Published BOP world type: {} groups available, {} dimensions seeded, Nether = {}.",
+			"Published BOP world type: {} groups available, {} dimensions seeded, Nether = {}; "
+				+ "all groups answer for all dimensions{}.",
 			WorldTypeGroups.GROUPS.size(), dimensions,
-			WorldTypeNetherBOP.NETHER_BOP != null ? "BOP's" : "BTA's (BOP Nether type missing!)");
+			WorldTypeNetherBOP.NETHER_BOP != null ? "BOP's" : "BTA's (BOP Nether type missing!)",
+			seeded.isEmpty() ? "" : " after healing");
+	}
+
+	private static String describe(WorldTypeGroups.Group group) {
+		return String.valueOf(Registries.WORLD_TYPES.getKey(group.get(Dimension.OVERWORLD)));
+	}
+
+	private static int dimensionId(Dimension dimension) {
+		for (var entry : Dimension.getDimensionList().int2ObjectEntrySet()) {
+			if (entry.getValue() == dimension) {
+				return entry.getIntKey();
+			}
+		}
+		return -1;
 	}
 
 	@NotNull
