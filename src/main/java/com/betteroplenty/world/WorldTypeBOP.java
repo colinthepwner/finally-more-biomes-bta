@@ -10,7 +10,6 @@ import net.minecraft.core.world.biome.Biome;
 import net.minecraft.core.world.biome.provider.BiomeProvider;
 import net.minecraft.core.world.generate.chunk.ChunkGenerator;
 import net.minecraft.core.world.generate.chunk.perlin.ChunkGeneratorPerlin;
-import net.minecraft.core.world.generate.chunk.perlin.overworld.SurfaceGeneratorOverworld;
 import net.minecraft.core.world.generate.CavesLargeFeature;
 import net.minecraft.core.world.generate.LargeFeature;
 import net.minecraft.core.world.type.WorldType;
@@ -157,7 +156,8 @@ public class WorldTypeBOP extends WorldTypeOverworld {
 			world,
 			new ChunkDecoratorBOP(world),
 			new TerrainGeneratorBOP(world),
-			new SurfaceGeneratorOverworld(world),
+
+			new SurfaceGeneratorBOP(world),
 			new LargeFeature[]{new CavesLargeFeature()}
 		) {};
 	}

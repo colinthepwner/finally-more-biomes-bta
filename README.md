@@ -60,7 +60,7 @@ in the release attachments:
 source and the only one with 120 of the files, while the 1.6.4 tree is the only source for 17
 others — the pre-rename apatite art, the six gem frames, the altar frame and a few more the later
 tree dropped or renamed. With only one of them the mod still runs; the files the other would have
-supplied render as the missing-texture checker, and the startup log names them.
+supplied render as solid magenta, and the startup log names them.
 
 > **On mcarchive.** [mcarchive.net](https://mcarchive.net/mods/biomes-o-plenty) is the usual mirror
 > for mods of this era, and it is worth saying plainly that it **does not carry either of these
@@ -90,13 +90,13 @@ purely as a data source.
 What the pack was built from is recorded inside it, so later launches skip the search entirely.
 **Delete `texturepacks/FinallyMoreBiomesAssets` to force a fresh look.**
 
-### A few textures come from Minecraft, not from BOP
+### The vanilla-block faces ship with the mod
 
 Some ported BOP features place *vanilla* blocks that BTA 8.0 does not ship — mycelium, giant
-mushrooms and hardened clay — so those blocks had to be ported alongside the features that place
-them, and they need their vanilla faces. The bridge picks those eight textures up from any
-Minecraft jar or resource pack you already have under the game directory, by the same search. If it
-finds none, those eight blocks render as the checker and everything else is unaffected.
+mushrooms and hardened clay. Their faces are generated from BTA's own textures and included in the
+jar, so the two BOP archives above are all you ever need to supply. (Releases before 0.1.4 tried
+to read these eight from a Minecraft jar on disk instead, which is why older versions rendered the
+badlands in magenta — updating fixes it.)
 
 ## Build
 
@@ -123,10 +123,9 @@ The startup log prints an audit of what registered, biome by biome.
 ## Known limits
 
 - **Without a copy of BOP, the mod's blocks have no art.** They register, generate and behave
-  correctly; they render as the missing-texture checker. This is the design, not a bug — see above.
+  correctly; they render as solid magenta. This is the design, not a bug — see above.
 - **Both archives are wanted, not one.** With only one, the files the other would have supplied are
   missing. The log names them at startup.
-- The 8 vanilla textures need a Minecraft jar or resource pack on disk as well; see above.
 
 ## Licence
 

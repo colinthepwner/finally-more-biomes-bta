@@ -69,26 +69,23 @@ DERIVED_PREFIXES = (
     # Redrawn from BTA's jar.png, because BTA has no glass bottle for these to reuse.
     "betteroplenty/textures/item/jar",
     "betteroplenty/textures/item/ambrosia.png",
+    # The eight vanilla-block stand-ins: BTA's own mud_baked/grass/dirt/log pixels recoloured
+    # (hues sampled from BTA's small mushrooms or chosen constants). tools/gen_vanilla_standins.py.
+    # These replaced the MOJANG_VERBATIM bridge entries in 0.1.4 -- bridging them required a
+    # Minecraft ~1.6-1.12 jar no player had, and the miss rendered the Badlands solid magenta.
+    "betteroplenty/textures/block/hardened_clay",
+    "betteroplenty/textures/block/mycel_",
+    "betteroplenty/textures/block/mushroom_skin_",
 )
 
-# Mojang's, verbatim, sitting under this mod's own namespace because the blocks that need
-# them are vanilla blocks BTA does not ship. Neither original nor derived, so Colin's
-# "keep original and derived" does not reach them -- and shipping Mojang art verbatim in a
-# public repo is the least defensible thing in the tree. They bridge out of the player's
-# own Minecraft jar instead, under the 1.8 names on the right.
-#
-# Named here rather than detected, because there is nothing about the bytes that says
-# Mojang -- only LICENSE-NOTICE.md's record of where they were copied from.
-MOJANG_VERBATIM = {
-    "betteroplenty/textures/block/mycel_top.png": "mycelium_top.png",
-    "betteroplenty/textures/block/mycel_side.png": "mycelium_side.png",
-    "betteroplenty/textures/block/mushroom_skin_brown.png": "mushroom_block_skin_brown.png",
-    "betteroplenty/textures/block/mushroom_skin_red.png": "mushroom_block_skin_red.png",
-    "betteroplenty/textures/block/mushroom_skin_stem.png": "mushroom_block_skin_stem.png",
-    "betteroplenty/textures/block/hardened_clay.png": "hardened_clay.png",
-    "betteroplenty/textures/block/hardened_clay_stained_orange.png": "hardened_clay_stained_orange.png",
-    "betteroplenty/textures/block/hardened_clay_stained_red.png": "hardened_clay_stained_red.png",
-}
+# Mojang's, verbatim, sitting under this mod's own namespace. Empty since 0.1.4: the eight
+# vanilla-block faces that used to live here (mycelium, giant-mushroom skins, hardened clay)
+# stopped being Mojang's pixels at all -- they are generated from BTA's own art by
+# tools/gen_vanilla_standins.py and ship as Adapted Material with the other DERIVED_PREFIXES
+# entries. The map stays, empty, because the check below is the ratchet that keeps anyone from
+# quietly re-copying Mojang art into the tree: name the path here and it is reported instead of
+# shipping as "own".
+MOJANG_VERBATIM: dict[str, str] = {}
 
 ASSET_SUFFIXES = {".png", ".ogg", ".mcmeta"}
 

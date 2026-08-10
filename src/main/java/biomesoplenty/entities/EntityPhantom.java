@@ -1,5 +1,6 @@
 package biomesoplenty.entities;
 
+import com.betteroplenty.entity.PhantomAuraBridge;
 import com.betteroplenty.item.BOPItems;
 import net.minecraft.core.block.Blocks;
 import net.minecraft.core.block.tag.BlockTags;
@@ -64,14 +65,16 @@ public class EntityPhantom extends MobMonster {
 	}
 
 	private void spawnAura(double red, double green, double blue) {
+		PhantomAuraBridge.Sink sink = PhantomAuraBridge.sink;
 		for (int i = 0; i < PARTICLES_PER_TICK; i++) {
-			this.world.spawnParticle("puffrgb",
-				this.x + this.random.nextDouble() * this.bbWidth,
-				this.y + this.random.nextDouble() * this.bbHeight - this.heightOffset,
-				this.z + this.random.nextDouble() * this.bbWidth,
-				red, green, blue,
-				-1,
-				false);
+			double px = this.x + this.random.nextDouble() * this.bbWidth;
+			double py = this.y + this.random.nextDouble() * this.bbHeight - this.heightOffset;
+			double pz = this.z + this.random.nextDouble() * this.bbWidth;
+			if (sink != null) {
+				sink.spawn(this.world, px, py, pz, red, green, blue);
+			} else {
+				this.world.spawnParticle("puffrgb", px, py, pz, red, green, blue, -1, false);
+			}
 		}
 	}
 

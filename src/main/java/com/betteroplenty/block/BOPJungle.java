@@ -47,7 +47,7 @@ public final class BOPJungle {
 			.setBlockSound(BlockSounds.WOOD)
 			.setFlammability(5, 20)
 			.setTags(BlockTags.MINEABLE_BY_AXE, BlockTags.FENCES_CONNECT)
-			.setCreativeInventoryPlacement(after(() -> Blocks.PLANKS_OAK_PAINTED))
+			.setCreativeInventoryPlacement(after(() -> Items.SUGARCANE))
 			.build("thatching", 2009, block -> new BlockLogic(block, Materials.WOOD));
 
 		BetterOPlenty.LOGGER.info(

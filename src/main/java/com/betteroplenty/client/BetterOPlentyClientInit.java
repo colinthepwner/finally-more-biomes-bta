@@ -18,6 +18,9 @@ public class BetterOPlentyClientInit implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+
+		PhantomAuraClient.install();
+
 		ClientEvents.AFTER_CLIENT_START.listen(Key.of(BetterOPlenty.MOD_ID), () -> {
 			registerWorldTypeFX();
 

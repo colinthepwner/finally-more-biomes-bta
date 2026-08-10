@@ -1,5 +1,6 @@
 package com.betteroplenty.compat;
 
+import com.betteroplenty.block.BOPJungle;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.BlockLogicLeavesBase;
 import net.minecraft.core.block.BlockLogicLog;
@@ -102,7 +103,25 @@ public abstract class BOPWorldFeature extends WorldFeature {
 
 	protected static boolean canPlaceAt(World world, int blockId, int x, int y, int z) {
 		Block<?> block = Blocks.getBlock(blockId);
-		return block != null && block.getLogic().canPlaceAt(world, new TilePos(x, y, z));
+		if (block == null) {
+			return false;
+		}
+		if (isVanillaMushroom(blockId) && !vanillaMushroomStayRule(world, x, y, z)) {
+			return false;
+		}
+		return block.getLogic().canPlaceAt(world, new TilePos(x, y, z));
+	}
+
+	private static boolean isVanillaMushroom(int blockId) {
+		return blockId == Blocks.MUSHROOM_BROWN.id() || blockId == Blocks.MUSHROOM_RED.id();
+	}
+
+	private static boolean vanillaMushroomStayRule(World world, int x, int y, int z) {
+		Block<?> below = getBlock(world, x, y - 1, z);
+		if (below != null && below == BOPJungle.MYCELIUM) {
+			return true;
+		}
+		return getFullBlockLightValue(world, x, y, z) < 13;
 	}
 
 	protected static void onTreeGrownAt(World world, int x, int y, int z) {
@@ -111,7 +130,14 @@ public abstract class BOPWorldFeature extends WorldFeature {
 
 	protected static boolean canBlockStay(World world, int blockId, int x, int y, int z) {
 		Block<?> block = Blocks.getBlock(blockId);
-		return block != null && block.getLogic().canStay(world, new TilePos(x, y, z));
+		if (block == null) {
+			return false;
+		}
+
+		if (isVanillaMushroom(blockId) && !vanillaMushroomStayRule(world, x, y, z)) {
+			return false;
+		}
+		return block.getLogic().canStay(world, new TilePos(x, y, z));
 	}
 
 	protected static boolean isLeaves(int blockId) {

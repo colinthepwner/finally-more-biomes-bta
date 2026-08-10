@@ -13,6 +13,12 @@ Generated rather than hand-written because there are 450 of them and because a h
 would drift the moment the importer's precedence changed. The classifier decides what is
 upstream art by comparing bytes; this only reshapes that answer into a properties file.
 
+ONLY RUNNABLE AGAINST A PRE-STRIP TREE. The classifier can only call a file "bridged" by
+hashing it, so it has to be present; on today's stripped tree the bridged bucket is empty
+and this would happily write an EMPTY manifest over the real 458-entry one (it did, once,
+on 2026-08-10 -- caught by the diff). The guard in main() now refuses instead. To really
+regenerate: git-restore the pre-strip assets, classify, generate, re-strip.
+
 Keys are the last two path segments, not the base name
 -----------------------------------------------------
 Mo' Creatures gets away with base names because mob skins have unique ones. BOP does not:
@@ -35,6 +41,7 @@ import argparse
 import hashlib
 import json
 import re
+import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -60,23 +67,14 @@ DEFAULT_HASH_OUT = REPO / "src/main/resources/assets/betteroplenty/asset-bridge-
 
 PACK_PREFIX = "assets/"
 
-# Vanilla art this port needs because the BOP features that place these blocks place
-# *vanilla* blocks BTA 8.0 does not ship, so the block had to be ported alongside the
-# feature and needs its vanilla face. Mojang's, so it is bridged rather than shipped, out
-# of whatever Minecraft jar or resource pack the player already has.
-#
-# Keyed on base name alone: the directory moved from `textures/blocks/` to
-# `textures/block/` in 1.13, and none of these names collides with anything in BOP.
-MINECRAFT_SECTION = [
-    ("mycelium_top.png", ["betteroplenty/textures/block/mycel_top.png"]),
-    ("mycelium_side.png", ["betteroplenty/textures/block/mycel_side.png"]),
-    ("mushroom_block_skin_brown.png", ["betteroplenty/textures/block/mushroom_skin_brown.png"]),
-    ("mushroom_block_skin_red.png", ["betteroplenty/textures/block/mushroom_skin_red.png"]),
-    ("mushroom_block_skin_stem.png", ["betteroplenty/textures/block/mushroom_skin_stem.png"]),
-    ("hardened_clay.png", ["betteroplenty/textures/block/hardened_clay.png"]),
-    ("hardened_clay_stained_orange.png", ["betteroplenty/textures/block/hardened_clay_stained_orange.png"]),
-    ("hardened_clay_stained_red.png", ["betteroplenty/textures/block/hardened_clay_stained_red.png"]),
-]
+# Empty since 0.1.4. This used to bridge eight vanilla faces (mycelium, giant-mushroom skins,
+# hardened clay) out of "whatever Minecraft jar the player already has" -- and no player had
+# one: those base names only exist in Minecraft ~1.6-1.12, the dev instance quietly satisfied
+# them from run/minecraft-1.8.jar, and everyone else's Badlands rendered as the atlas default
+# fill, solid magenta. The art is now generated from BTA's own textures by
+# tools/gen_vanilla_standins.py and ships in the jar. The section stays so the shape of the
+# manifest (and this history) is not lost the next time somebody needs a vanilla face.
+MINECRAFT_SECTION: list[tuple[str, list[str]]] = []
 
 # Order and headings for the BOP half, by upstream directory. Anything not named here is
 # emitted under "Other" rather than dropped, so a new upstream directory shows up in the
@@ -210,6 +208,14 @@ def main() -> int:
         parser.error("--provenance is required unless --hashes-only is given")
 
     data = json.loads(args.provenance.read_text(encoding="utf-8"))
+
+    # The docstring's pre-strip warning, enforced. A classification taken on a stripped tree
+    # has nothing in "bridged" and would overwrite the live 458-entry manifest with an empty
+    # one -- silently, since writing an empty file is a perfectly successful run.
+    if not data.get("bridged"):
+        sys.exit("provenance has an empty 'bridged' bucket -- this classification was taken on a "
+                 "stripped tree.\nRegenerating from it would erase the manifest. Use --hashes-only, "
+                 "or classify a pre-strip tree.")
 
     # key -> set of pack paths. A set because several shipped files can resolve to the
     # same key and the same destination via different upstream candidates.

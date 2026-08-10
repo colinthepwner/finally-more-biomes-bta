@@ -46,7 +46,18 @@ public final class BOPAssetBridge {
 
 	private static final String STAMP = "bridge-source.txt";
 
-	private static final int BRIDGE_REVISION = 2;
+	private static final int BRIDGE_REVISION = 3;
+
+	private static final String[] RETIRED_PACK_PATHS = {
+		"assets/betteroplenty/textures/block/mycel_top.png",
+		"assets/betteroplenty/textures/block/mycel_side.png",
+		"assets/betteroplenty/textures/block/mushroom_skin_brown.png",
+		"assets/betteroplenty/textures/block/mushroom_skin_red.png",
+		"assets/betteroplenty/textures/block/mushroom_skin_stem.png",
+		"assets/betteroplenty/textures/block/hardened_clay.png",
+		"assets/betteroplenty/textures/block/hardened_clay_stained_orange.png",
+		"assets/betteroplenty/textures/block/hardened_clay_stained_red.png",
+	};
 
 	private static final int MAX_NESTING = 3;
 
@@ -98,6 +109,13 @@ public final class BOPAssetBridge {
 		List<String> missing = new ArrayList<>();
 		int written = 0;
 		try {
+			for (String retired : RETIRED_PACK_PATHS) {
+				File stale = new File(packDir, retired);
+				if (stale.isFile() && !stale.delete()) {
+					BetterOPlenty.LOGGER.warn("Asset bridge: could not delete retired pack file {}; "
+						+ "it will override the jar's shipped copy", retired);
+				}
+			}
 			for (Map.Entry<String, List<String>> mapping : manifest.entrySet()) {
 				byte[] bytes = entries.get(mapping.getKey());
 				if (bytes == null) {
@@ -128,7 +146,7 @@ public final class BOPAssetBridge {
 		if (!missing.isEmpty()) {
 
 			BetterOPlenty.LOGGER.warn("Asset bridge: {} file(s) not found in any source. Those textures will "
-				+ "render as the missing-texture checker. Missing: {}", missing.size(), summarise(missing));
+				+ "render as solid magenta. Missing: {}", missing.size(), summarise(missing));
 		}
 
 		new Stamp(sourceArchive, used, gameDir).write(packDir);
@@ -162,7 +180,7 @@ public final class BOPAssetBridge {
 	public static void logSummary() {
 		if (bridgedCount < 0 && !usedCache) {
 			BetterOPlenty.LOGGER.warn("Asset bridge: no BOP art is loaded. The mod's own art still renders; "
-				+ "everything from BOP will show as the missing-texture checker until a copy of BOP is "
+				+ "everything from BOP will show as solid magenta until a copy of BOP is "
 				+ "dropped into the game directory. See the README.");
 		}
 	}

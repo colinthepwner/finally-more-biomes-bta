@@ -34,7 +34,7 @@ in the tree is byte-compared against the upstream trees by
 [`tools/classify_asset_provenance.py`](tools/classify_asset_provenance.py), and what that tool
 decides is what happens.
 
-### Bridged — 458 files, **not** in this repository or the jar
+### Bridged — 450 files, **not** in this repository or the jar
 
 | Count | What |
 |---|---|
@@ -45,19 +45,17 @@ decides is what happens.
 | 9 | BOP mob sounds (`.ogg`) |
 | 2 | BOP music discs (`.ogg`) |
 | 1 | BOP particle sprite |
-| 8 | **Mojang's** vanilla textures — mycelium, giant-mushroom skins and hardened clay |
 
 Every one of these is byte-identical to a file in an upstream tree. They are listed in
 [`asset-bridge.properties`](src/main/resources/assets/betteroplenty/asset-bridge.properties) and
 supplied at runtime by the asset bridge. See the README for how that works.
 
-The eight Mojang textures are here because a handful of ported BOP features place *vanilla* blocks
-that BTA 8.0 does not ship, so the block had to be ported alongside the feature and needs its
-vanilla face. They come from whatever Minecraft jar or resource pack you already have. They are
-Mojang's, not Glitchfiend's, and shipping them would be a separate problem from the BOP one — so
-they are bridged for the same reason and by the same mechanism.
+(Releases 0.1.0–0.1.3 also bridged eight of **Mojang's** vanilla textures — mycelium, the
+giant-mushroom skins and hardened clay — out of any Minecraft jar found on disk. That art is no
+longer used at all: since 0.1.4 those eight faces are generated from BTA's own textures and ship
+with the mod, listed under Adapted below.)
 
-### Adapted — 95 files, **shipped**, and the part worth reading twice
+### Adapted — 103 files, **shipped**, and the part worth reading twice
 
 These are not byte-identical to anything upstream, but they are **built out of upstream pixels**:
 
@@ -68,6 +66,7 @@ These are not byte-identical to anything upstream, but they are **built out of u
 | 19 | amethyst bucket states | BOP's amethyst bucket body, with fills recoloured from BTA's own bucket art |
 | 12 | iron and steel bucket states | **BTA's** own bucket art, recoloured for the fluids this mod adds |
 | 5 | jars and ambrosia | redrawn from **BTA's** `jar.png`, because BTA has no glass bottle |
+| 8 | vanilla-block stand-ins — mycelium, giant-mushroom skins, hardened clay | **BTA's** own baked-mud, grass, dirt and log textures, recoloured (`tools/gen_vanilla_standins.py`) |
 
 **Be aware of what this means.** CC BY-NC-ND calls this *Adapted Material*, and the licence
 restricts sharing it at least as firmly as it restricts sharing a verbatim copy. The 35 ore
@@ -75,7 +74,7 @@ variants, the 24 particle frames and the amethyst bucket body carry Glitchfiend'
 distributed here. That is a deliberate decision by this project's author, made with the position
 understood — not an oversight, and not a claim that the licence permits it.
 
-The 17 files built from BTA's art rather than BOP's are a separate matter: BTA is
+The 25 files built from BTA's art rather than BOP's are a separate matter: BTA is
 [Turnip Labs'](https://betterthanadventure.net/) work, and those are recolours of it.
 
 If you are Glitchfiend, or Turnip Labs, and you would like any of this removed — see

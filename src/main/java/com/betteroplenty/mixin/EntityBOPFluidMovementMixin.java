@@ -31,10 +31,11 @@ public abstract class EntityBOPFluidMovementMixin {
 		Material[] materials = betteroplenty$fluidMaterials;
 		if (materials == null) {
 			materials = new Material[]{
-				BOPFluids.SPRING_WATER_MATERIAL, BOPFluids.LIQUID_POISON_MATERIAL
+				BOPFluids.SPRING_WATER_MATERIAL, BOPFluids.LIQUID_POISON_MATERIAL,
+				BOPFluids.HONEY_MATERIAL
 			};
 
-			if (materials[0] != null && materials[1] != null) {
+			if (materials[0] != null && materials[1] != null && materials[2] != null) {
 				betteroplenty$fluidMaterials = materials;
 			}
 		}

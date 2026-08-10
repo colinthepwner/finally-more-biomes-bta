@@ -11,6 +11,7 @@ import net.minecraft.core.data.registry.recipe.entry.RecipeEntryCrafting;
 import net.minecraft.core.data.registry.recipe.entry.RecipeEntryFurnace;
 import net.minecraft.core.item.Items;
 import net.minecraft.core.item.Item;
+import net.minecraft.core.item.ItemBucket;
 import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.item.block.ItemBlock;
 import net.minecraft.core.lang.I18n;
@@ -81,6 +82,7 @@ public final class BOPAudit {
 				}
 			}
 			auditDuplicateLangKeys(problems);
+			auditCreativeMenuDuplicates(problems);
 			logIdFingerprint();
 		} catch (Throwable t) {
 			BetterOPlenty.LOGGER.warn("Content audit could not complete; this is the audit's own "
@@ -249,5 +251,35 @@ public final class BOPAudit {
 			}
 		}
 		return ids;
+	}
+
+	private static void auditCreativeMenuDuplicates(List<String> problems) {
+		Map<String, Integer> counts = new HashMap<>();
+		for (ItemStack stack : MenuInventoryCreative.creativeContents) {
+			if (stack == null) {
+				continue;
+			}
+			Item item = stack.getItem();
+			if (item == null || !BetterOPlenty.MOD_ID.equals(item.namespaceID.namespace())) {
+				continue;
+			}
+			String key = item.namespaceID + " meta " + stack.getMetadata();
+			if (item instanceof ItemBucket) {
+				key += " state " + ItemBucket.getState(stack);
+			}
+			counts.merge(key, 1, Integer::sum);
+		}
+
+		List<String> keys = new ArrayList<>(counts.keySet());
+		Collections.sort(keys);
+		for (String key : keys) {
+			int count = counts.get(key);
+			if (count > 1) {
+				problems.add(key + ": in the creative menu " + count + " times -- its After(X) "
+					+ "anchor names an item the curated list holds more than once (painted "
+					+ "planks are sixteen stacks, coal is two); anchor on something listed "
+					+ "exactly once");
+			}
+		}
 	}
 }

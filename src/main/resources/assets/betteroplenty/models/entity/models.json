@@ -8,6 +8,9 @@
 		"betteroplenty:bird": {
 			"main": "geometry.bird"
 		},
+		"betteroplenty:glob": {
+			"main": "geometry.slime"
+		},
 		"betteroplenty:wasp": {
 			"main": "geometry.wasp"
 		},
