@@ -24,7 +24,8 @@ public class WorldGenWaterReeds extends BOPWorldFeature {
 			int var9 = par5 + par2Random.nextInt(8) - par2Random.nextInt(8);
 
 			if (isAirBlock(par1World, var7, var8, var9)
-					&& getBlockId(par1World, var7, var8 - 1, var9) == Blocks.FLUID_WATER_STILL.id()) {
+					&& getBlockId(par1World, var7, var8 - 1, var9) == Blocks.FLUID_WATER_STILL.id()
+					&& canBlockStay(par1World, this.reedID, var7, var8, var9)) {
 				for (int var900 = 2; var900 > -2; --var900) {
 					int neighbour = getBlockId(par1World, var7 - var900, var8 - 1, var9 - var900);
 

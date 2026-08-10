@@ -158,17 +158,25 @@ public final class BOPDecorations {
 
 	static {
 
+		counter("water_lakes", d -> d.waterLakesPerChunk,
+			WaterOrIceLake::new, new NestedHeightUniform(240, 8));
+
+		counter("lava_lakes", d -> d.lavaLakesPerChunk,
+			() -> new WorldFeatureLake(Blocks.FLUID_LAVA_STILL.id()),
+			BOPFluidDecorations.BIOME_POOL_DEPTH);
+
+		counter("water_lakes_base", d -> d.generateBaseWaterLakes ? 1 : 0,
+			WaterOrIceLake::new, PositionSelectors.HeightRangeUniform,
+			count -> new PlacementMethod.ChanceToPlace(4));
+
+		counter("lava_lakes_base", d -> 1,
+			BelowSeaLavaLake::new, new NestedHeightUniform(248, 8),
+			count -> new PlacementMethod.ChanceToPlace(8));
+
 		counter("trees", d -> d.treesPerChunk,
 			BiomeTreeFeature::new, SurfaceOrFloor.INSTANCE,
 			count -> new TriesPerChunkPlusChance(count, 10),
 			true);
-
-		counter("grass", d -> d.grassPerChunk,
-			BiomeGrassFeature::new, PositionSelectors.HeightRangeUniform);
-
-		counter("lavender", d -> d.lavenderPerChunk,
-			() -> new WorldGenBOPFlowers(BOPBlocks.LAVENDER.id(), 0),
-			PositionSelectors.HeightRangeUniform);
 
 		counter("pumpkins", d -> d.generatePumpkins ? 1 : 0,
 			WorldGenBOPPumpkin::new, PositionSelectors.HeightRangeUniform,
@@ -313,6 +321,13 @@ public final class BOPDecorations {
 			count -> new TriesPerChunkWithChance(
 				BOPFluidDecorations.UNDERGROUND_TRIES,
 				BOPFluidDecorations.UNDERGROUND_LIQUID_POISON_CHANCE));
+
+		counter("grass", d -> d.grassPerChunk,
+			BiomeGrassFeature::new, PositionSelectors.HeightRangeUniform);
+
+		counter("lavender", d -> d.lavenderPerChunk,
+			() -> new WorldGenBOPFlowers(BOPBlocks.LAVENDER.id(), 0),
+			PositionSelectors.HeightRangeUniform);
 
 		counter("bushes", d -> d.bushesPerChunk,
 			() -> new WorldGenBOPBush(BOPPlants.BUSH.id(), 0),
@@ -637,21 +652,6 @@ public final class BOPDecorations {
 		counter("clay", d -> d.clayPerChunk,
 			() -> new WorldFeatureClay(4),
 			TopSolidOrLiquid.INSTANCE);
-
-		counter("water_lakes", d -> d.waterLakesPerChunk,
-			WaterOrIceLake::new, new NestedHeightUniform(240, 8));
-
-		counter("lava_lakes", d -> d.lavaLakesPerChunk,
-			() -> new WorldFeatureLake(Blocks.FLUID_LAVA_STILL.id()),
-			BOPFluidDecorations.BIOME_POOL_DEPTH);
-
-		counter("water_lakes_base", d -> d.generateBaseWaterLakes ? 1 : 0,
-			WaterOrIceLake::new, PositionSelectors.HeightRangeUniform,
-			count -> new PlacementMethod.ChanceToPlace(4));
-
-		counter("lava_lakes_base", d -> 1,
-			BelowSeaLavaLake::new, new NestedHeightUniform(248, 8),
-			count -> new PlacementMethod.ChanceToPlace(8));
 
 		counter("ponds", d -> d.generateLakes ? 50 + d.pondsPerChunk : 0,
 			() -> new WorldFeatureLiquid(Blocks.FLUID_WATER_FLOWING.id()),

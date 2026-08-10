@@ -94,14 +94,24 @@ public abstract class BOPWorldFeature extends WorldFeature {
 	}
 
 	protected static int getFullBlockLightValue(World world, int x, int y, int z) {
+		if (DecorationWindow.wouldCascade(world, x, z)) {
+			return 0;
+		}
 		return world.getFullBlockLightValue(x, y, z);
 	}
 
 	protected static boolean canBlockSeeTheSky(World world, int x, int y, int z) {
+		if (DecorationWindow.wouldCascade(world, x, z)) {
+			return false;
+		}
 		return world.canBlockSeeTheSky(x, y, z);
 	}
 
 	protected static boolean canPlaceAt(World world, int blockId, int x, int y, int z) {
+
+		if (DecorationWindow.wouldCascade(world, x, z)) {
+			return false;
+		}
 		Block<?> block = Blocks.getBlock(blockId);
 		if (block == null) {
 			return false;
@@ -129,6 +139,10 @@ public abstract class BOPWorldFeature extends WorldFeature {
 	}
 
 	protected static boolean canBlockStay(World world, int blockId, int x, int y, int z) {
+
+		if (DecorationWindow.wouldCascade(world, x, z)) {
+			return false;
+		}
 		Block<?> block = Blocks.getBlock(blockId);
 		if (block == null) {
 			return false;

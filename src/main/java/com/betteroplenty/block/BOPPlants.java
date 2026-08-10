@@ -275,7 +275,7 @@ public final class BOPPlants {
 
 		REED = cross(plant, "reed", 1772, "reed", VISIBLE,
 			block -> new BlockLogicBOPGroundCover(block)
-				.withSoil(soil -> soil == Blocks.FLUID_WATER_STILL)
+				.withSoil(soil -> soil.hasTag(BlockTags.IS_WATER))
 				.withHandDrop(1),
 			NO_TINT);
 

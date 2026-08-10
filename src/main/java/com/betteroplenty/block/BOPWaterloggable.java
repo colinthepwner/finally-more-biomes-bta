@@ -3,6 +3,7 @@ package com.betteroplenty.block;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.Blocks;
 import net.minecraft.core.block.material.Materials;
+import net.minecraft.core.block.tag.BlockTags;
 import net.minecraft.core.world.WorldSource;
 import net.minecraft.core.world.pos.TilePos;
 import net.minecraft.core.world.pos.TilePosc;
@@ -20,7 +21,12 @@ public final class BOPWaterloggable {
 	}
 
 	public static boolean isWaterloggedPlant(@NotNull WorldSource source, @NotNull TilePosc pos) {
-		if (!isWaterloggable(source.getBlockType(pos))) {
+		Block<?> here = source.getBlockType(pos);
+		if (here == BOPPlants.REED) {
+			return source.getBlockType(new TilePos(pos.x(), pos.y() - 1, pos.z()))
+				.hasTag(BlockTags.IS_WATER);
+		}
+		if (!isWaterloggable(here)) {
 			return false;
 		}
 		TilePos above = new TilePos(pos.x(), pos.y() + 1, pos.z());

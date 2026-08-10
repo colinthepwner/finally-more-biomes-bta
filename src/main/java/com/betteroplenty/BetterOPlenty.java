@@ -74,6 +74,10 @@ public class BetterOPlenty implements ModInitializer {
 
 		BOPAchievements.register();
 
+		net.minecraft.core.world.biome.provider.BiomeProviderNether.init();
+		LOGGER.info("Rebuilt BTA's Nether biome-range grid on final biome ids "
+			+ "(it locks from a static initialiser this mod touches mid-registration).");
+
 		BOPWorldAudit.run();
 		BOPSpawnAudit.run();
 		BOPIdManifest.run();

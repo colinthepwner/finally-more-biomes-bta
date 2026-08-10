@@ -28,6 +28,8 @@ public final class BiomeProviderNetherBOP extends BiomeProvider {
 	private static final double WARP_SCALE = 0.08;
 	private static final double WARP_LACUNARITY = 0.4;
 
+	private static final double WARP_AMPLITUDE_SUM = 15.0;
+
 	private final FractalNoise2D<?> temperatureNoise;
 	private final FractalNoise2D<?> downfallNoise;
 	private final FractalNoise2D<?> fuzzinessNoise;
@@ -81,6 +83,8 @@ public final class BiomeProviderNetherBOP extends BiomeProvider {
 		double[] warp2 = this.warpNoise.setLacunarity(WARP_LACUNARITY)
 			.getRegion(null, x + 1731, z - 907, xSize, zSize, WARP_SCALE, WARP_SCALE);
 
+		java.util.HashMap<Long, Double> cellShare = new java.util.HashMap<>();
+
 		for (int xx = 0; xx < xSize; xx++) {
 			for (int zz = 0; zz < zSize; zz++) {
 				int i = xx * zSize + zz;
@@ -93,15 +97,21 @@ public final class BiomeProviderNetherBOP extends BiomeProvider {
 				downfall = clamp01(downfall);
 
 				double varietyRaw = rawVariety[i] * 0.15 + 0.5;
-				double varietyShare = BOPClimate.VARIETY.share(varietyRaw);
 
 				temperatures[i] = temperature;
 				humidities[i] = downfall;
 				varieties[i] = clamp01(varietyRaw);
 
-				int slot = BOPNetherClimate.slotAt(x + xx, z + zz,
-					warp[i] * BOPNetherClimate.WARP, warp2[i] * BOPNetherClimate.WARP,
-					this.worldSeed);
+				double warpX = warp[i] / WARP_AMPLITUDE_SUM * BOPNetherClimate.WARP;
+				double warpZ = warp2[i] / WARP_AMPLITUDE_SUM * BOPNetherClimate.WARP;
+				int cellX = BOPNetherClimate.cellCoord(x + xx, warpX);
+				int cellZ = BOPNetherClimate.cellCoord(z + zz, warpZ);
+
+				double varietyShare = cellShare.computeIfAbsent(
+					((long) cellX << 32) ^ (cellZ & 0xFFFFFFFFL),
+					key -> this.cellVarietyShare(cellX, cellZ));
+
+				int slot = BOPNetherClimate.slotAt(x + xx, z + zz, warpX, warpZ, this.worldSeed);
 
 				for (int yy = 0; yy < ySize; yy++) {
 
@@ -113,6 +123,14 @@ public final class BiomeProviderNetherBOP extends BiomeProvider {
 		}
 
 		return biomes;
+	}
+
+	private double cellVarietyShare(int cellX, int cellZ) {
+		double[] point = this.varietyNoise.setLacunarity(VARIETY_LACUNARITY).getRegion(
+			null,
+			(int) BOPNetherClimate.cellCenter(cellX), (int) BOPNetherClimate.cellCenter(cellZ),
+			1, 1, VARIETY_X_SCALE, VARIETY_Z_SCALE);
+		return BOPClimate.VARIETY.share(point[0] * 0.15 + 0.5);
 	}
 
 	@Override

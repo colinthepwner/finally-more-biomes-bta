@@ -55,9 +55,17 @@ public final class BOPNetherClimate {
 
 	public static final double WARP = CELL / 2.0;
 
+	public static int cellCoord(int coord, double warp) {
+		return Math.floorDiv((int) Math.floor(coord + warp), CELL);
+	}
+
+	public static double cellCenter(int cell) {
+		return cell * CELL + CELL / 2.0;
+	}
+
 	public static int slotAt(int x, int z, double warpX, double warpZ, long worldSeed) {
-		int cellX = Math.floorDiv((int) Math.floor(x + warpX), CELL);
-		int cellZ = Math.floorDiv((int) Math.floor(z + warpZ), CELL);
+		int cellX = cellCoord(x, warpX);
+		int cellZ = cellCoord(z, warpZ);
 
 		long h = worldSeed * 0x9E3779B97F4A7C15L
 			+ cellX * 0xBF58476D1CE4E5B9L
