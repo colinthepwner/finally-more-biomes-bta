@@ -1,6 +1,7 @@
 package com.betteroplenty.asset;
 
 import com.betteroplenty.BetterOPlenty;
+import com.betteroplenty.res.ObfResources;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -44,6 +45,8 @@ public final class BOPAssetBridge {
 	private static final String SOUNDS_JSON = "/assets/betteroplenty/sounds/sounds.json";
 	private static final String SOUNDS_JSON_IN_PACK = "assets/betteroplenty/sounds/sounds.json";
 
+	private static final String META_SUFFIX = ".mcmeta";
+
 	private static final String STAMP = "bridge-source.txt";
 
 	private static final int BRIDGE_REVISION = 3;
@@ -84,6 +87,8 @@ public final class BOPAssetBridge {
 			sourceArchive = previous.label;
 			BetterOPlenty.LOGGER.info("Asset bridge: '{}' is already built from {}, skipping extraction",
 				PACK_NAME, previous.label);
+
+			syncAnimationMeta(packDir, manifest);
 			return packDir;
 		}
 
@@ -128,6 +133,7 @@ public final class BOPAssetBridge {
 					written++;
 				}
 			}
+			syncAnimationMeta(packDir, manifest);
 			copySoundsManifest(packDir);
 			writePackMeta(packDir);
 		} catch (IOException e) {
@@ -674,6 +680,35 @@ public final class BOPAssetBridge {
 				+ "sounds will work but each will be declared twice and log an error", e.toString());
 		}
 		write(new File(packDir, SOUNDS_JSON_IN_PACK), out);
+	}
+
+	private static void syncAnimationMeta(File packDir, Map<String, List<String>> manifest) {
+		int written = 0;
+		for (List<String> destinations : manifest.values()) {
+			for (String path : destinations) {
+				if (!path.endsWith(".png")) continue;
+				String meta = path + META_SUFFIX;
+				try {
+					byte[] bytes = open("/" + meta);
+					if (bytes == null) continue;
+					write(new File(packDir, meta), bytes);
+					written++;
+				} catch (IOException e) {
+
+					BetterOPlenty.LOGGER.warn("Asset bridge: could not write {}: {}", meta, e.toString());
+				}
+			}
+		}
+		BetterOPlenty.LOGGER.info("Asset bridge: {} animation sidecar(s) alongside the art.", written);
+	}
+
+	private static byte[] open(String path) throws IOException {
+		try (InputStream in = BOPAssetBridge.class.getResourceAsStream(path)) {
+			if (in != null) return readFully(in);
+		}
+		try (InputStream in = ObfResources.open(path)) {
+			return in == null ? null : readFully(in);
+		}
 	}
 
 	private static void writePackMeta(File packDir) throws IOException {

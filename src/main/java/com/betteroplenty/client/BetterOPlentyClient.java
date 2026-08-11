@@ -57,6 +57,8 @@ public class BetterOPlentyClient implements ModelEntrypoint {
 
 		BOPParticles.resolveTextures();
 
+		BOPItemIcons.resolve();
+
 		dispatcher.addDispatch(new BlockModelStandard<>(BOPBlocks.SPIKE_CUBE)
 			.withTextures("betteroplenty:block/spike_cube"));
 

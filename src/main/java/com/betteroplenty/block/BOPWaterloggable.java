@@ -20,13 +20,9 @@ public final class BOPWaterloggable {
 			|| block == BOPPlants.HIGH_GRASS_TOP);
 	}
 
-	public static boolean isWaterloggedPlant(@NotNull WorldSource source, @NotNull TilePosc pos) {
+	public static boolean isSubmergedPlant(@NotNull WorldSource source, @NotNull TilePosc pos) {
 		Block<?> here = source.getBlockType(pos);
-		if (here == BOPPlants.REED) {
-			return source.getBlockType(new TilePos(pos.x(), pos.y() - 1, pos.z()))
-				.hasTag(BlockTags.IS_WATER);
-		}
-		if (!isWaterloggable(here)) {
+		if (!isWaterloggable(here) && here != BOPPlants.REED) {
 			return false;
 		}
 		TilePos above = new TilePos(pos.x(), pos.y() + 1, pos.z());
@@ -38,5 +34,14 @@ public final class BOPWaterloggable {
 			return source.getBlockMaterial(new TilePos(pos.x(), pos.y() + 2, pos.z())) == Materials.WATER;
 		}
 		return false;
+	}
+
+	public static boolean isWaterloggedPlant(@NotNull WorldSource source, @NotNull TilePosc pos) {
+		if (isSubmergedPlant(source, pos)) {
+			return true;
+		}
+		return source.getBlockType(pos) == BOPPlants.REED
+			&& source.getBlockType(new TilePos(pos.x(), pos.y() - 1, pos.z()))
+				.hasTag(BlockTags.IS_WATER);
 	}
 }

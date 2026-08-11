@@ -17,7 +17,7 @@ public class FluidModelWaterlogMixin {
 	@Inject(method = "shouldSideBeRendered", at = @At("HEAD"), cancellable = true)
 	private void betteroplenty$continuousSeaOverWaterloggedPlants(WorldSource source, AABBdc bounds,
 			TilePosc tilePos, Side side, CallbackInfoReturnable<Boolean> cir) {
-		if (BOPWaterloggable.isWaterloggedPlant(source, tilePos)) {
+		if (BOPWaterloggable.isSubmergedPlant(source, tilePos)) {
 			cir.setReturnValue(false);
 		}
 	}
