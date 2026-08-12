@@ -344,8 +344,9 @@ public final class BOPItems {
 			.setCreativeInventoryPlacement(after(() -> Items.ARMOR_BOOTS_ICESKATES))
 			.build(new ItemArmor<>("wading_boots", "betteroplenty:item/wadingboots", 18504,
 				BOPMaterials.WADING_BOOTS_ARMOR, HumanArmorShape.BOOTS));
+
 		FLIPPERS = builder.clone()
-			.setCreativeInventoryPlacement(after(() -> WADING_BOOTS))
+			.setCreativeInventoryPlacement(after(() -> Items.ARMOR_BOOTS_ICESKATES))
 			.build(new ItemArmor<>("flippers", "betteroplenty:item/flippers", 18505,
 				BOPMaterials.FLIPPERS_ARMOR, HumanArmorShape.BOOTS));
 	}

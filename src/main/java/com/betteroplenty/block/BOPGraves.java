@@ -32,6 +32,7 @@ public final class BOPGraves {
 			.build("grave", 2123, block -> BlockLogicGrave.lower(block, () -> GRAVE_TOP));
 
 		GRAVE_TOP = grave.clone()
+			.addTags(BlockTags.NOT_IN_CREATIVE_MENU)
 			.build("grave_top", 2124, block -> BlockLogicGrave.upper(block, () -> GRAVE));
 
 		BetterOPlenty.LOGGER.info(
