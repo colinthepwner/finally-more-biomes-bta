@@ -81,14 +81,14 @@ public final class BOPAssetBridge {
 
 		File packDir = new File(gameDir, "texturepacks/" + PACK_NAME);
 
+		if (packDir.isDirectory()) syncAnimationMeta(packDir, manifest);
+
 		Stamp previous = Stamp.read(packDir);
 		if (previous != null && previous.stillValid(gameDir)) {
 			usedCache = true;
 			sourceArchive = previous.label;
 			BetterOPlenty.LOGGER.info("Asset bridge: '{}' is already built from {}, skipping extraction",
 				PACK_NAME, previous.label);
-
-			syncAnimationMeta(packDir, manifest);
 			return packDir;
 		}
 
@@ -133,6 +133,7 @@ public final class BOPAssetBridge {
 					written++;
 				}
 			}
+
 			syncAnimationMeta(packDir, manifest);
 			copySoundsManifest(packDir);
 			writePackMeta(packDir);
