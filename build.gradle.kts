@@ -517,6 +517,20 @@ loom {
 			runDir = "run-obf"
 			ideConfigGenerated(false)
 		}
+		// The server half of the same idea, and it exists because a whole class of bug is
+		// invisible without it. `MinecraftServer.startServer()` builds every WorldServer, fills
+		// three dimension-keyed maps and installs `WorldManager` as the level listener -- none of
+		// which happens on a client, in any run configuration. 0.1.11 fixed two bugs that lived
+		// entirely in that gap (ledger rows 33 and 34), and the SHIPPED artefact is the obfuscated
+		// jar, whose mixin config carries renamed classes (`server: ["a.a"]`). So "the mixin is in
+		// the jar" and "the mixin applies on a server" are two different claims and this proves the
+		// second one.
+		create("obfServer") {
+			server()
+			configName = "Finally More Biomes server (obfuscated jar)"
+			runDir = "run-obf-server"
+			ideConfigGenerated(false)
+		}
 	}
 }
 
@@ -527,6 +541,15 @@ tasks.named<JavaExec>("runObfClient") {
 	// to be worth anything. -PobfJar=<path> overrides it to run any other build,
 	// which is how the shipped jar gets its own launch.
 	dependsOn(obfuscatedAgentJar)
+}
+
+tasks.named<JavaExec>("runObfServer") {
+	description = "Runs a dedicated server from the obfuscated jar -- the artefact that ships."
+
+	// The plain obfuscated jar, not the agent variant: this configuration exists to exercise what
+	// players actually run, and agent mode is client-side anyway.
+	dependsOn(obfuscatedJar)
+	standardInput = System.`in`
 }
 
 // Swapping the classpath has to happen in `afterEvaluate`, not in the task's own `doFirst`.
@@ -556,6 +579,24 @@ afterEvaluate {
 		}
 		classpath = files(stripped, jar)
 		logger.lifecycle("runObfClient will run {} ({} classpath entries)", jar.name, stripped.size + 1)
+	}
+
+	// Same swap for the server, and the same check that it actually removed something. Defaults to
+	// the plain obfuscated jar rather than the agent one; -PobfJar=<path> overrides it, which is how
+	// a previous release gets launched for an A/B.
+	tasks.named<JavaExec>("runObfServer") {
+		val jar = providers.gradleProperty("obfJar").map { File(it) }
+			.orElse(obfJarFile.map { it.asFile }).get()
+		check(jar.isFile) { "No such jar: $jar" }
+
+		val devOutput = sourceSets.main.get().output.files
+		val stripped = classpath.files.filterNot { it in devOutput }
+		check(stripped.size < classpath.files.size) {
+			"The dev classes were not on runObfServer's classpath, so removing them did " +
+				"nothing -- this run would not have been testing the jar."
+		}
+		classpath = files(stripped, jar)
+		logger.lifecycle("runObfServer will run {} ({} classpath entries)", jar.name, stripped.size + 1)
 	}
 }
 

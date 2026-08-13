@@ -67,6 +67,8 @@ public class BetterOPlenty implements ModInitializer {
 		com.betteroplenty.world.promised.DimensionPromisedLand.register();
 		WorldTypeBOP.registerWorldTypeGroup();
 
+		BOPSounds.register();
+
 		BOPWoodSet.joinItemGroups();
 		BOPRecipes.register();
 

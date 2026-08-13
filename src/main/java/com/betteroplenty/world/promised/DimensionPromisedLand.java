@@ -34,14 +34,19 @@ public final class DimensionPromisedLand {
 		}
 	}
 
-	public static void register() {
-		if (Dimension.getDimensionList().containsKey(DIMENSION_ID)) {
+	public static boolean register() {
+		Dimension existing = Dimension.getDimensionList().get(DIMENSION_ID);
+		if (existing == PROMISED_LAND) {
+			return false;
+		}
+		if (existing != null) {
 			BetterOPlenty.LOGGER.error(
 				"Dimension id {} is already taken; the Promised Land will not be reachable.",
 				DIMENSION_ID);
-			return;
+			return false;
 		}
 		Dimension.registerDimension(DIMENSION_ID, PROMISED_LAND);
 		BetterOPlenty.LOGGER.info("Registered the Promised Land as dimension {}.", DIMENSION_ID);
+		return true;
 	}
 }

@@ -49,5 +49,8 @@
     "client.TexturePackListBridgeMixin",
     "client.TexturePackPackedMixin",
     "client.TextureRegistryPackedMixin"
+  ],
+  "server": [
+    "server.MinecraftServerDimensionMixin"
   ]
 }

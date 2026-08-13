@@ -25,6 +25,8 @@ public class WorldTypeBOP extends WorldTypeOverworld {
 
 	public static WorldType BOP;
 
+	private static boolean groupPublished = false;
+
 	public WorldTypeBOP(WorldType.Properties properties) {
 		super(properties);
 	}
@@ -43,6 +45,9 @@ public class WorldTypeBOP extends WorldTypeOverworld {
 	}
 
 	public static void registerWorldTypeGroup() {
+		if (groupPublished) {
+			return;
+		}
 		int dimensions = Dimension.getDimensionList().size();
 		if (dimensions == 0) {
 			BetterOPlenty.LOGGER.error(
@@ -87,6 +92,7 @@ public class WorldTypeBOP extends WorldTypeOverworld {
 			group.with(dimension, type);
 		}
 		WorldTypeGroups.GROUPS.add(group);
+		groupPublished = true;
 
 		List<String> seeded = new ArrayList<>();
 		for (WorldTypeGroups.Group candidate : WorldTypeGroups.GROUPS) {

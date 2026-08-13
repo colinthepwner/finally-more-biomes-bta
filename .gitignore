@@ -11,6 +11,10 @@ run-server/
 # ours to commit.
 run-obf/
 
+# runObfServer's game directory. Same reason again -- it holds a generated world, server.properties
+# and the ban/op lists, none of which belong in the repo.
+run-obf-server/
+
 # Reference clones (upstream repos with their own licenses; kept local, never committed)
 _reference/
 
