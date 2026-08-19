@@ -96,15 +96,13 @@ public final class BOPAssetBridge {
 
 		List<Source> sources = findSources(gameDir, packDir, wanted);
 		if (sources.isEmpty()) {
-			reportNothingFound(gameDir, manifest.size());
-			return null;
+			return reportNothingFound(gameDir, packDir, manifest.size());
 		}
 
 		List<Source> used = new ArrayList<>();
 		Map<String, byte[]> entries = collect(sources, wanted, readHashes(), used);
 		if (entries.isEmpty()) {
-			reportNothingFound(gameDir, manifest.size());
-			return null;
+			return reportNothingFound(gameDir, packDir, manifest.size());
 		}
 		sourceArchive = describe(gameDir, used);
 
@@ -192,13 +190,25 @@ public final class BOPAssetBridge {
 		}
 	}
 
-	private static void reportNothingFound(File gameDir, int manifestSize) {
+	private static File reportNothingFound(File gameDir, File packDir, int manifestSize) {
 		bridgedCount = 0;
 		missingCount = manifestSize;
+
+		if (new File(packDir, "assets").isDirectory()) {
+			usedCache = true;
+			Stamp previous = Stamp.read(packDir);
+			sourceArchive = previous != null ? previous.label : "a pack built elsewhere";
+			BetterOPlenty.LOGGER.info("Asset bridge: no copy of Biomes O' Plenty found under '{}', but texture "
+				+ "pack '{}' is already built from {} -- using it as it stands. Nothing needs rebuilding "
+				+ "unless you want to.", gameDir.getPath(), PACK_NAME, sourceArchive);
+			return packDir;
+		}
+
 		BetterOPlenty.LOGGER.info("Asset bridge: no Biomes O' Plenty files found anywhere under '{}'. "
 			+ "Drop your own copy of BOP in (zip, jar or unpacked folder, any name, any depth) to give the "
 			+ "blocks their art. This mod does not ship BOP's textures and never downloads them.",
 			gameDir.getPath());
+		return null;
 	}
 
 	private static String summarise(List<String> missing) {
