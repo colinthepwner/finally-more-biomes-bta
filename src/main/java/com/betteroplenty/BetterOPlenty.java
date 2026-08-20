@@ -28,7 +28,7 @@ public class BetterOPlenty implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		CommonEvents.BEFORE_GAME_START.listen(Key.of(MOD_ID), this::beforeGameStart);
-		CommonEvents.AFTER_GAME_START.listen(Key.of(MOD_ID), this::afterGameStart);
+		CommonEvents.AFTER_GAME_START.listen(Key.of(MOD_ID), this::afterGameStartGuarded);
 
 		CommonEvents.RECIPES_NAMESPACE_INIT.listen(Key.of(MOD_ID), BOPRecipeNamespaces::initNamespaces);
 		LOGGER.info("Finally More Biomes initialized.");
@@ -60,6 +60,16 @@ public class BetterOPlenty implements ModInitializer {
 
 		com.betteroplenty.block.BOPPromisedLand.registerPortal();
 		WorldTypeBOP.register();
+	}
+
+	private void afterGameStartGuarded() {
+		try {
+			afterGameStart();
+		} catch (Throwable t) {
+			LOGGER.error("afterGameStart failed; parts of this mod may be missing. Deliberately "
+				+ "swallowed: throwing here would cancel afterGameStart for every mod loaded after "
+				+ "this one.", t);
+		}
 	}
 
 	private void afterGameStart() {
