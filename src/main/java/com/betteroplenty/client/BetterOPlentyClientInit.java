@@ -29,6 +29,8 @@ public class BetterOPlentyClientInit implements ClientModInitializer {
 
 			AchievementPageBOP.register();
 
+			BOPGuidebook.registerMobPages();
+
 			BOPAudit.run();
 
 			BOPFluids.audit();

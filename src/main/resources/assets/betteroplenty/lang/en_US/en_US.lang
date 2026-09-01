@@ -388,6 +388,18 @@ entity.betteroplenty.pixie.name=Pixie
 entity.betteroplenty.glob.name=Glob
 entity.betteroplenty.phantom.name=Phantom
 
+# The guidebook page body beside each name above, registered by BOPGuidebook. A page
+# whose description key is missing prints the raw key as its body text, which is only
+# visible to someone who opens that page -- so these are checked by BOPAudit alongside
+# the names rather than left to be noticed.
+entity.betteroplenty.jungle_spider.desc=Smaller and faster than a common spider, and far easier to kill.\nIt makes up for it by arriving six at a time.\nFound in rainforest and tropical biomes.
+entity.betteroplenty.rosester.desc=A chicken that lays red dye instead of eggs, and leaves flowers growing behind it in warm country.\nTempted by seeds, like any other fowl.\nFound in gardens.
+entity.betteroplenty.bird.desc=Drifts from point to point on the wing and never lands for long.\nHarmless.\nNative to the Promised Land, so nothing hunts it in this world yet.
+entity.betteroplenty.wasp.desc=Flies the same wandering course as the bird, but it is looking for you.\nIt hunts across a hundred blocks and stings harder than a zombie hits.\nIt has never had a home biome in any version of the mod.
+entity.betteroplenty.pixie.desc=A hand-sized flyer that leaves a trail of light behind it.\nIt drops the dust it is made of.\nWhere it belongs in this world is still an open question.
+entity.betteroplenty.glob.desc=A slime raised on swamp water. It splits when killed, the way any slime does, and the pieces carry mud as well as slime.\nFound in bogs, fens, moors, quagmires and sludge pits.
+entity.betteroplenty.phantom.desc=Never drawn, and that is not a fault: there is nothing to see but the haze it trails.\nIt walks, it follows, and it hits what it reaches.\nIt belongs to Nether biomes this port has not built yet.
+
 # Projectiles. A thrown entity is never named on screen, but a null nameKey also
 # costs the display name a chunk-load debug view shows. See BOPProjectiles.
 entity.betteroplenty.mudball.name=Mudball

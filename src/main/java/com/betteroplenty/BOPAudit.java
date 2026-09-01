@@ -7,6 +7,7 @@ import net.minecraft.core.block.Blocks;
 import net.minecraft.core.block.tag.BlockTags;
 import net.minecraft.core.data.registry.Registries;
 import com.betteroplenty.block.BOPWoodSet;
+import com.betteroplenty.entity.BOPEntities;
 import net.minecraft.core.data.registry.recipe.entry.RecipeEntryCrafting;
 import net.minecraft.core.data.registry.recipe.entry.RecipeEntryFurnace;
 import net.minecraft.core.item.Items;
@@ -81,6 +82,7 @@ public final class BOPAudit {
 					problems.add(name + MISSING_FROM_CREATIVE);
 				}
 			}
+			auditEntityLang(problems);
 			auditDuplicateLangKeys(problems);
 			auditCreativeMenuDuplicates(problems);
 			logIdFingerprint();
@@ -92,11 +94,13 @@ public final class BOPAudit {
 
 		if (problems.isEmpty()) {
 			BetterOPlenty.LOGGER.info(
-				"Content audit: {} blocks and {} items, all with name, desc, model and a creative slot.",
-				blocks, items);
+				"Content audit: {} blocks and {} items, all with name, desc, model and a creative slot; "
+					+ "{} mob(s), all with name and guidebook description.",
+				blocks, items, BOPEntities.REGISTERED.size());
 		} else {
-			BetterOPlenty.LOGGER.warn("Content audit found {} problem(s) across {} blocks and {} items:",
-				problems.size(), blocks, items);
+			BetterOPlenty.LOGGER.warn("Content audit found {} problem(s) across {} blocks, {} items and "
+					+ "{} mobs:",
+				problems.size(), blocks, items, BOPEntities.REGISTERED.size());
 			for (String problem : problems) {
 				BetterOPlenty.LOGGER.warn("  - {}", problem);
 			}
@@ -227,6 +231,12 @@ public final class BOPAudit {
 			}
 		} catch (Throwable t) {
 			BetterOPlenty.LOGGER.warn("Smelting audit could not complete.", t);
+		}
+	}
+
+	private static void auditEntityLang(List<String> problems) {
+		for (String id : BOPEntities.REGISTERED.values()) {
+			checkLang(problems, BetterOPlenty.MOD_ID + ":" + id, "entity." + BetterOPlenty.MOD_ID + "." + id);
 		}
 	}
 

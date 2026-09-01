@@ -32,6 +32,10 @@ import net.minecraft.client.gui.achievements.ScreenAchievements;
 import net.minecraft.client.gui.achievements.data.AchievementPage;
 import net.minecraft.client.gui.achievements.data.AchievementPageRegistry;
 import net.minecraft.client.gui.container.ScreenInventory;
+import net.minecraft.client.gui.guidebook.GuidebookPage;
+import net.minecraft.client.gui.guidebook.GuidebookPageManager;
+import net.minecraft.client.gui.guidebook.GuidebookSections;
+import net.minecraft.client.gui.guidebook.ScreenGuidebook;
 import net.minecraft.client.gui.container.ScreenInventoryCreative;
 import net.minecraft.client.gui.toasts.GuiElementToastsHud;
 import com.betteroplenty.client.BiomeBlendBOP;
@@ -1080,14 +1084,38 @@ final class AgentController {
 	private void screen(Minecraft mc, long id, JsonObject command) {
 		String which = command.has("screen") ? command.get("screen").getAsString() : "none";
 		if (!which.equals("none") && !which.equals("inventory") && !which.equals("mob_spawning")
-			&& !which.equals("achievements")) {
+			&& !which.equals("achievements") && !which.equals("guidebook")) {
 			fail(id, "unknown screen '" + which
-				+ "'; expected \"inventory\", \"achievements\", \"mob_spawning\" or \"none\"");
+				+ "'; expected \"inventory\", \"achievements\", \"mob_spawning\", \"guidebook\" "
+				+ "or \"none\"");
 			return;
 		}
 
 		if (which.equals("achievements")) {
 			achievements(mc, id, command);
+			return;
+		}
+
+		if (which.equals("guidebook")) {
+			GuidebookPageManager manager = ScreenGuidebook.getPageManager();
+			mc.displayScreen(new ScreenGuidebook(mc.currentScreen));
+			if (command.has("page")) {
+				manager.setCurrentPage(command.get("page").getAsInt(), false);
+			}
+
+			JsonObject result = ok(id);
+			result.addProperty("screen",
+				mc.currentScreen == null ? null : mc.currentScreen.getClass().getSimpleName());
+			result.addProperty("pages", manager.getNumPages());
+			result.addProperty("mob_pages", GuidebookSections.MOB == null
+				? -1 : GuidebookSections.MOB.getPages().size());
+			result.addProperty("mob_section_start", GuidebookSections.MOB == null
+				? -1 : manager.getSectionIndex(GuidebookSections.MOB));
+			GuidebookPage left = manager.getLeftPage();
+			GuidebookPage right = manager.getRightPage();
+			result.addProperty("left", left == null ? null : left.getClass().getSimpleName());
+			result.addProperty("right", right == null ? null : right.getClass().getSimpleName());
+			bridge.write(result);
 			return;
 		}
 

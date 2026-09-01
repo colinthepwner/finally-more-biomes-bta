@@ -9,7 +9,12 @@ import biomesoplenty.entities.EntityRosester;
 import biomesoplenty.entities.EntityWasp;
 import com.betteroplenty.BetterOPlenty;
 import net.minecraft.core.entity.EntityDispatcher;
+import net.minecraft.core.entity.Mob;
+import net.minecraft.core.entity.factories.EntityFactory;
 import net.minecraft.core.util.collection.NamespaceID;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public final class BOPEntities {
 	private BOPEntities() {}
@@ -17,54 +22,41 @@ public final class BOPEntities {
 	private static final EntityDispatcher DISPATCHER = EntityDispatcher.getInstance();
 
 	public static void register() {
-		DISPATCHER.addMapping(EntityJungleSpider.class,
-			NamespaceID.getPermanent(BetterOPlenty.MOD_ID, "jungle_spider"),
-			EntityJungleSpider::new,
-			"entity.betteroplenty.jungle_spider.name");
+		register(EntityJungleSpider.class, "jungle_spider", EntityJungleSpider::new);
+		register(EntityRosester.class, "rosester", EntityRosester::new);
+		register(EntityBird.class, "bird", EntityBird::new);
+		register(EntityWasp.class, "wasp", EntityWasp::new);
+		register(EntityPixie.class, "pixie", EntityPixie::new);
+		register(EntityGlob.class, "glob", EntityGlob::new);
+		register(EntityPhantom.class, "phantom", EntityPhantom::new);
 
-		DISPATCHER.addMapping(EntityRosester.class,
-			NamespaceID.getPermanent(BetterOPlenty.MOD_ID, "rosester"),
-			EntityRosester::new,
-			"entity.betteroplenty.rosester.name");
-
-		DISPATCHER.addMapping(EntityBird.class,
-			NamespaceID.getPermanent(BetterOPlenty.MOD_ID, "bird"),
-			EntityBird::new,
-			"entity.betteroplenty.bird.name");
-
-		DISPATCHER.addMapping(EntityWasp.class,
-			NamespaceID.getPermanent(BetterOPlenty.MOD_ID, "wasp"),
-			EntityWasp::new,
-			"entity.betteroplenty.wasp.name");
-
-		DISPATCHER.addMapping(EntityPixie.class,
-			NamespaceID.getPermanent(BetterOPlenty.MOD_ID, "pixie"),
-			EntityPixie::new,
-			"entity.betteroplenty.pixie.name");
-
-		DISPATCHER.addMapping(EntityGlob.class,
-			NamespaceID.getPermanent(BetterOPlenty.MOD_ID, "glob"),
-			EntityGlob::new,
-			"entity.betteroplenty.glob.name");
-
-		DISPATCHER.addMapping(EntityPhantom.class,
-			NamespaceID.getPermanent(BetterOPlenty.MOD_ID, "phantom"),
-			EntityPhantom::new,
-			"entity.betteroplenty.phantom.name");
-
-		BetterOPlenty.LOGGER.info("Registered {} BOP entities.", REGISTERED.length);
+		BetterOPlenty.LOGGER.info("Registered {} BOP entities.", REGISTERED.size());
 		verify();
 	}
 
-	private static final Class<?>[] REGISTERED = {
-		EntityJungleSpider.class, EntityRosester.class, EntityBird.class, EntityWasp.class,
-		EntityPixie.class, EntityGlob.class, EntityPhantom.class
-	};
+	private static <T extends Mob> void register(Class<T> entityClass, String id,
+	                                             EntityFactory<T> factory) {
+		DISPATCHER.addMapping(entityClass,
+			NamespaceID.getPermanent(BetterOPlenty.MOD_ID, id),
+			factory,
+			nameKeyFor(id));
+		REGISTERED.put(entityClass, id);
+	}
+
+	public static final Map<Class<? extends Mob>, String> REGISTERED = new LinkedHashMap<>();
+
+	public static String nameKeyFor(String id) {
+		return "entity." + BetterOPlenty.MOD_ID + "." + id + ".name";
+	}
+
+	public static String descKeyFor(String id) {
+		return "entity." + BetterOPlenty.MOD_ID + "." + id + ".desc";
+	}
 
 	private static void verify() {
 		StringBuilder found = new StringBuilder();
 		int ok = 0;
-		for (Class<?> entity : REGISTERED) {
+		for (Class<?> entity : REGISTERED.keySet()) {
 			EntityDispatcher.EntityDispatcherEntry<?> entry =
 				EntityDispatcher.getInstance().entryForClass((Class) entity);
 			if (entry == null) {
@@ -81,7 +73,7 @@ public final class BOPEntities {
 			found.append(found.length() == 0 ? "" : ", ")
 				.append(entry.stringID).append(" #").append(entry.numericID);
 		}
-		if (ok == REGISTERED.length) {
+		if (ok == REGISTERED.size()) {
 			BetterOPlenty.LOGGER.info("Entity dispatcher resolves all {} BOP entities: {}.", ok, found);
 		}
 	}
