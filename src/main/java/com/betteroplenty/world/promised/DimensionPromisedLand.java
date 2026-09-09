@@ -1,5 +1,6 @@
 package com.betteroplenty.world.promised;
 
+import com.betteroplenty.BOPDimensionId;
 import com.betteroplenty.BetterOPlenty;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.BlockLogicPortal;
@@ -10,7 +11,11 @@ import java.lang.reflect.Field;
 public final class DimensionPromisedLand {
 	private DimensionPromisedLand() {}
 
-	public static final int DIMENSION_ID = 3;
+	private static int dimensionId = -1;
+
+	public static int dimensionId() {
+		return dimensionId;
+	}
 
 	public static Dimension PROMISED_LAND;
 
@@ -29,24 +34,42 @@ public final class DimensionPromisedLand {
 			field.setAccessible(true);
 			field.set(PROMISED_LAND, portal);
 		} catch (ReflectiveOperationException | RuntimeException e) {
+
 			BetterOPlenty.LOGGER.error("Could not attach the Promised Land's portal block; travel "
-				+ "to and from dimension {} will fail in PortalHandler.", DIMENSION_ID, e);
+				+ "to and from it will fail in PortalHandler.", e);
 		}
 	}
 
 	public static boolean register() {
-		Dimension existing = Dimension.getDimensionList().get(DIMENSION_ID);
-		if (existing == PROMISED_LAND) {
+		if (dimensionId != -1 && Dimension.getDimensionList().get(dimensionId) == PROMISED_LAND) {
 			return false;
 		}
-		if (existing != null) {
-			BetterOPlenty.LOGGER.error(
-				"Dimension id {} is already taken; the Promised Land will not be reachable.",
-				DIMENSION_ID);
+
+		int id = BOPDimensionId.choosePromised();
+		if (id == -1) {
+
 			return false;
 		}
-		Dimension.registerDimension(DIMENSION_ID, PROMISED_LAND);
-		BetterOPlenty.LOGGER.info("Registered the Promised Land as dimension {}.", DIMENSION_ID);
+
+		try {
+			Dimension.registerDimension(id, PROMISED_LAND);
+		} catch (IllegalArgumentException raced) {
+
+			BetterOPlenty.LOGGER.error("Dimension id {} was taken between choosing it and claiming "
+				+ "it; the Promised Land will not be reachable. Registered ids: {}.",
+				id, BOPDimensionId.describeIdSpace(), raced);
+			return false;
+		}
+
+		dimensionId = id;
+		if (id == BOPDimensionId.PREFERRED) {
+			BetterOPlenty.LOGGER.info("Registered the Promised Land as dimension {}.", id);
+		} else {
+
+			BetterOPlenty.LOGGER.info("Registered the Promised Land as dimension {} rather than "
+				+ "this mod's usual {}; the reason is in the line(s) above. Registered ids: {}.",
+				id, BOPDimensionId.PREFERRED, BOPDimensionId.describeIdSpace());
+		}
 		return true;
 	}
 }

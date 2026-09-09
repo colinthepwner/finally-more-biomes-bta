@@ -22,7 +22,7 @@ public class MinecraftServerDimensionMixin {
 			BetterOPlenty.LOGGER.info("Claimed dimension {} before this server built its worlds, so "
 					+ "it gets a WorldServer, a PlayerManager and an entity tracker like any other "
 					+ "dimension. {} dimension(s) will be built.",
-				DimensionPromisedLand.DIMENSION_ID, Dimension.getDimensionList().size());
+				DimensionPromisedLand.dimensionId(), Dimension.getDimensionList().size());
 		}
 
 		WorldTypeBOP.registerWorldTypeGroup();

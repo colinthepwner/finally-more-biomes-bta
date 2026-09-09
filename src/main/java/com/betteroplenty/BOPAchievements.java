@@ -179,7 +179,8 @@ public final class BOPAchievements {
 		if (player == null || !ready) {
 			return;
 		}
-		if (dimensionId == DimensionPromisedLand.DIMENSION_ID) {
+
+		if (dimensionId == DimensionPromisedLand.dimensionId()) {
 			player.triggerAchievement(PROMISED);
 		}
 	}
