@@ -28,10 +28,33 @@ public class WorldTypeBOP extends WorldTypeOverworld {
 
 	public static WorldType BOP;
 
+	public static WorldType BOP_AMPLIFIED;
+
+	public static WorldType BOP_WOVEN;
+
+	public static WorldType BOP_WOVEN_AMPLIFIED;
+
+	private static WorldType[] overworldTypes() {
+		return new WorldType[]{BOP, BOP_AMPLIFIED, BOP_WOVEN, BOP_WOVEN_AMPLIFIED};
+	}
+
+	private final boolean woven;
+
 	private static boolean groupPublished = false;
 
 	public WorldTypeBOP(WorldType.Properties properties) {
+		this(properties, false);
+	}
+
+	public WorldTypeBOP(WorldType.Properties properties, boolean woven) {
 		super(properties);
+		this.woven = woven;
+	}
+
+	private static WorldType.Properties amplified(String translationKey) {
+		return WorldTypeOverworld.defaultProperties(translationKey)
+			.bounds(0, 255, 64)
+			.portalBounds(0, 255);
 	}
 
 	public static void register() {
@@ -43,8 +66,31 @@ public class WorldTypeBOP extends WorldTypeOverworld {
 			)
 		);
 
-		BetterOPlenty.LOGGER.info("Registered world type '{}' (256 tall, ocean at Y=128).",
-			BetterOPlenty.MOD_ID + ":bop.default");
+		BOP_AMPLIFIED = WorldTypes.register(
+			BetterOPlenty.MOD_ID + ":bop.amplified",
+			new WorldTypeBOP(amplified("worldType.betteroplenty.bop.amplified"))
+		);
+
+		BOP_WOVEN = WorldTypes.register(
+			BetterOPlenty.MOD_ID + ":bop.woven",
+			new WorldTypeBOP(
+				WorldTypeOverworld.defaultProperties("worldType.betteroplenty.bop.woven")
+					.portalBounds(0, 255),
+				true
+			)
+		);
+
+		BOP_WOVEN_AMPLIFIED = WorldTypes.register(
+			BetterOPlenty.MOD_ID + ":bop.woven.amplified",
+			new WorldTypeBOP(amplified("worldType.betteroplenty.bop.woven.amplified"), true)
+		);
+
+		BetterOPlenty.LOGGER.info("Registered 4 world types: '{}' and '{}' (256 tall, ocean at "
+				+ "Y=128), '{}' and '{}' (amplified, ocean at Y=64); two of the four weave BTA's "
+				+ "biomes in.",
+			BetterOPlenty.MOD_ID + ":bop.default", BetterOPlenty.MOD_ID + ":bop.woven",
+			BetterOPlenty.MOD_ID + ":bop.amplified",
+			BetterOPlenty.MOD_ID + ":bop.woven.amplified");
 	}
 
 	public static void registerWorldTypeGroup() {
@@ -60,35 +106,40 @@ public class WorldTypeBOP extends WorldTypeOverworld {
 		}
 
 		List<Integer> plugged = plugIdSpaceHoles();
-		WorldTypeGroups.Group group;
+		List<WorldTypeGroups.Group> groups = new ArrayList<>();
 		int builtInGroups;
 		try {
 
 			builtInGroups = WorldTypeGroups.GROUPS.size();
 
-			group = new WorldTypeGroups.Group(BOP) {
-				@Override
-				public WorldType get(Dimension dimension) {
-					try {
-						return super.get(dimension);
-					} catch (NullPointerException hole) {
-						WorldType fallback = dimension.defaultWorldType;
-						if (fallback == null) {
-							throw new IllegalStateException("The BOP world type group has no world "
-								+ "type for dimension " + dimensionId(dimension) + ", and that "
-								+ "dimension declares no default of its own. It was registered after "
-								+ "Finally More Biomes published its world type, by a mod that did "
-								+ "not seed the existing groups.", hole);
-						}
-						with(dimension, fallback);
-						BetterOPlenty.LOGGER.warn("BOP world type group: dimension {} was registered "
-							+ "after the group was built; seeded its default world type '{}' so world "
-							+ "creation cannot crash on it.", dimensionId(dimension),
-							Registries.WORLD_TYPES.getKey(fallback));
-						return fallback;
-					}
+			for (WorldType overworld : overworldTypes()) {
+				if (overworld == null) {
+					continue;
 				}
-			};
+				groups.add(new WorldTypeGroups.Group(overworld) {
+					@Override
+					public WorldType get(Dimension dimension) {
+						try {
+							return super.get(dimension);
+						} catch (NullPointerException hole) {
+							WorldType fallback = dimension.defaultWorldType;
+							if (fallback == null) {
+								throw new IllegalStateException("The BOP world type group has no world "
+									+ "type for dimension " + dimensionId(dimension) + ", and that "
+									+ "dimension declares no default of its own. It was registered after "
+									+ "Finally More Biomes published its world type, by a mod that did "
+									+ "not seed the existing groups.", hole);
+							}
+							with(dimension, fallback);
+							BetterOPlenty.LOGGER.warn("BOP world type group: dimension {} was registered "
+								+ "after the group was built; seeded its default world type '{}' so world "
+								+ "creation cannot crash on it.", dimensionId(dimension),
+								Registries.WORLD_TYPES.getKey(fallback));
+							return fallback;
+						}
+					}
+				});
+			}
 		} catch (NullPointerException | ExceptionInInitializerError sparse) {
 
 			BetterOPlenty.LOGGER.error("Could not build the BOP world type group: BTA's "
@@ -110,26 +161,31 @@ public class WorldTypeBOP extends WorldTypeOverworld {
 			unplugIdSpaceHoles(plugged);
 		}
 
-		for (Dimension dimension : Dimension.getDimensionList().values()) {
-			WorldType type;
-			if (dimension == Dimension.OVERWORLD) {
-				type = BOP;
-			} else if (dimension == Dimension.NETHER && WorldTypeNetherBOP.NETHER_BOP != null) {
-				type = WorldTypeNetherBOP.NETHER_BOP;
-			} else {
-				type = dimension.defaultWorldType;
+		for (int i = 0; i < groups.size(); i++) {
+			WorldTypeGroups.Group group = groups.get(i);
+			WorldType overworld = overworldTypes()[i];
+			for (Dimension dimension : Dimension.getDimensionList().values()) {
+				WorldType type;
+				if (dimension == Dimension.OVERWORLD) {
+
+					type = overworld;
+				} else if (dimension == Dimension.NETHER && WorldTypeNetherBOP.NETHER_BOP != null) {
+					type = WorldTypeNetherBOP.NETHER_BOP;
+				} else {
+					type = dimension.defaultWorldType;
+				}
+				group.with(dimension, type);
 			}
-			group.with(dimension, type);
+			WorldTypeGroups.GROUPS.add(group);
 		}
-		WorldTypeGroups.GROUPS.add(group);
 		groupPublished = true;
 
 		List<String> seeded = healExistingGroups();
 
 		BetterOPlenty.LOGGER.info(
-			"Published BOP world type: {} groups available ({} of them BTA's own), {} dimensions "
+			"Published {} BOP world types: {} groups available ({} of them BTA's own), {} dimensions "
 				+ "seeded, Nether = {}; all groups answer for all dimensions{}.",
-			WorldTypeGroups.GROUPS.size(), builtInGroups, dimensions,
+			groups.size(), WorldTypeGroups.GROUPS.size(), builtInGroups, dimensions,
 			WorldTypeNetherBOP.NETHER_BOP != null ? "BOP's" : "BTA's (BOP Nether type missing!)",
 			seeded.isEmpty() ? "" : " after healing");
 	}
@@ -247,13 +303,16 @@ public class WorldTypeBOP extends WorldTypeOverworld {
 	@NotNull
 	@Override
 	public BiomeProvider createBiomeProvider(World world) {
-		return new BiomeProviderBOP(world);
+		if (this.woven) {
+			BOPWovenClimate.logPartition();
+		}
+		return new BiomeProviderBOP(world, this.woven);
 	}
 
 	@NotNull
 	@Override
 	public Biome[] allBiomes() {
-		return BOPBiomes.allBiomes();
+		return this.woven ? BOPWovenClimate.allBiomes() : BOPBiomes.allBiomes();
 	}
 
 	@Override

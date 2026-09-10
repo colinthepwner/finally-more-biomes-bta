@@ -46,6 +46,9 @@ tile.betteroplenty.spike.plant.name=Spike Plant
 tile.betteroplenty.spike.custom.name=Spike Custom Shape
 tile.betteroplenty.lavender.name=Lavender
 worldType.betteroplenty.bop.name=Finally More Biomes
+worldType.betteroplenty.bop.amplified.name=FMB Amplified
+worldType.betteroplenty.bop.woven.name=FMB Woven
+worldType.betteroplenty.bop.woven.amplified.name=FMB Woven Amplified
 biome.betteroplenty.bop.lavender_fields=Lavender Fields
 tile.betteroplenty.wheat.grass.name=Wheat Grass
 tile.betteroplenty.amethyst.ore.name=Amethyst Ore
@@ -162,7 +165,10 @@ tile.betteroplenty.jacaranda.leaves.desc=Leaves from a jacaranda tree.
 tile.betteroplenty.jacaranda.sapling.desc=Plant to grow a jacaranda tree.
 
 # World type. The Create World screen reads .name for the button and .desc for the blurb.
-worldType.betteroplenty.bop.desc=Finally More Biomes's biomes, woven into the overworld.
+worldType.betteroplenty.bop.desc=An overworld of Finally More Biomes's own biomes in place of BTA's.
+worldType.betteroplenty.bop.amplified.desc=Finally More Biomes's own biomes, on terrain stretched over the whole column with the sea left low. Mountains reach the clouds and the caves go a long way down.
+worldType.betteroplenty.bop.woven.desc=Finally More Biomes's biomes and BTA's own, sharing one overworld. The land is split between the two rosters in proportion to their size; the sea stays as Finally More Biomes has it.
+worldType.betteroplenty.bop.woven.amplified.desc=Both rosters in one overworld, on amplified terrain.
 
 # Biomes.
 

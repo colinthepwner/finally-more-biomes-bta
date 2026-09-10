@@ -49,8 +49,15 @@ public final class BiomeProviderBOP extends BiomeProvider {
 
 	private static final int CLIMATE_OCTAVES = 4;
 
+	private final boolean woven;
+
 	public BiomeProviderBOP(@NotNull World world) {
+		this(world, false);
+	}
+
+	public BiomeProviderBOP(@NotNull World world, boolean woven) {
 		super(world);
+		this.woven = woven;
 		long seed = world.getRandomSeed();
 		this.temperatureMap = new FractalNoise2D<>(SimplexNoise.genOctaves(seed * 9871L, CLIMATE_OCTAVES));
 		this.humidityMap = new FractalNoise2D<>(SimplexNoise.genOctaves(seed * 39811L, CLIMATE_OCTAVES));
@@ -252,11 +259,15 @@ public final class BiomeProviderBOP extends BiomeProvider {
 
 	@Override
 	public Biome lookupBiome(double temperature, double humidity, double landform, double variety) {
-		return brm.lookupBiome(
-			BOPClimate.TEMPERATURE.share(temperature),
-			BOPClimate.HUMIDITY.share(humidity),
-			BOPLandform.altitude(landform),
-			BOPClimate.VARIETY.share(variety));
+		double temperatureShare = BOPClimate.TEMPERATURE.share(temperature);
+		double humidityShare = BOPClimate.HUMIDITY.share(humidity);
+		double altitude = BOPLandform.altitude(landform);
+		double varietyShare = BOPClimate.VARIETY.share(variety);
+		if (this.woven) {
+			return BOPWovenClimate.lookup(temperature, humidity, temperatureShare, humidityShare,
+				altitude, varietyShare, brm);
+		}
+		return brm.lookupBiome(temperatureShare, humidityShare, altitude, varietyShare);
 	}
 
 	@NotNull
@@ -341,8 +352,13 @@ public final class BiomeProviderBOP extends BiomeProvider {
 			double h = BOPClimate.HUMIDITY.share(humidity[i]);
 			double v = BOPClimate.VARIETY.share(variety[i]);
 			double a = BOPLandform.altitude(mask[i]);
-			biomes[i] = brm.lookupBiome(t, h, a, v);
+
+			biomes[i] = bop.lookupBiome(temperature[i], humidity[i], mask[i], variety[i]);
 			weights[i] = biomeness(biomes[i], t, h, a, v);
+
+			if (weights[i] == 0.0 && biomes[i] != null) {
+				weights[i] = 1.0;
+			}
 		}
 		return new Blend(biomes, weights);
 	}

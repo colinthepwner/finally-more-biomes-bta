@@ -44,11 +44,19 @@ public class BetterOPlentyClientInit implements ClientModInitializer {
 			return;
 		}
 
-		WorldTypeFXDispatcher.getInstance().addDispatch(
-			new WorldTypeFXBOP(WorldTypeBOP.BOP).setHasAurora(true));
+		int registered = 0;
+		for (net.minecraft.core.world.type.WorldType type : new net.minecraft.core.world.type.WorldType[]{
+				WorldTypeBOP.BOP, WorldTypeBOP.BOP_AMPLIFIED,
+				WorldTypeBOP.BOP_WOVEN, WorldTypeBOP.BOP_WOVEN_AMPLIFIED}) {
+			if (type == null) continue;
+			WorldTypeFXDispatcher.getInstance().addDispatch(
+				new WorldTypeFXBOP(type).setHasAurora(true));
+			registered++;
+		}
 
 		BetterOPlenty.LOGGER.info(
-			"Registered BOP sky FX (clouds at the extended-overworld default, per-biome fog).");
+			"Registered BOP sky FX for {} world types (clouds at the extended-overworld default, "
+				+ "per-biome fog).", registered);
 
 		registerNetherFX();
 		registerPromisedLandFX();
