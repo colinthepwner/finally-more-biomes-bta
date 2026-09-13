@@ -40,6 +40,7 @@
     "client.FogClosenessMixin",
     "client.ItemModelBlockIconMixin",
     "client.LoadingScreenPromisedMixin",
+    "client.MenuInventoryCreativeAuditMixin",
     "client.MinecraftAgentMixin",
     "client.MobScoreAccessor",
     "client.MinecraftPromisedAchievementMixin",

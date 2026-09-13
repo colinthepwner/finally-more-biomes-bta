@@ -44,12 +44,7 @@ public final class BOPAudit {
 		int items = 0;
 
 		try {
-			Set<Integer> inCreative = creativeMenuItemIds();
-
-			for (Block<?> block : Blocks.blocksList) {
-				if (block == null || !BetterOPlenty.MOD_ID.equals(block.namespaceId().namespace())) {
-					continue;
-				}
+			for (Block<?> block : ownBlocks()) {
 				blocks++;
 				String name = block.namespaceId().toString();
 
@@ -58,18 +53,9 @@ public final class BOPAudit {
 				if (!BlockModelDispatcher.getInstance().hasDispatch(block)) {
 					problems.add(name + ": no block model -- it will be INVISIBLE in the world");
 				}
-
-				if (!block.hasTag(BlockTags.NOT_IN_CREATIVE_MENU) && !inCreative.contains(block.asItem().id)) {
-					problems.add(name + MISSING_FROM_CREATIVE);
-				}
 			}
 
-			for (Item item : Item.itemsList) {
-
-				if (item == null || item instanceof ItemBlock
-						|| !BetterOPlenty.MOD_ID.equals(item.namespaceID.namespace())) {
-					continue;
-				}
+			for (Item item : ownItems()) {
 				items++;
 				String name = item.namespaceID.toString();
 
@@ -78,13 +64,9 @@ public final class BOPAudit {
 				if (!ItemModelDispatcher.getInstance().hasDispatch(item)) {
 					problems.add(name + ": no item model -- it will be INVISIBLE in the inventory");
 				}
-				if (!inCreative.contains(item.id)) {
-					problems.add(name + MISSING_FROM_CREATIVE);
-				}
 			}
 			auditEntityLang(problems);
 			auditDuplicateLangKeys(problems);
-			auditCreativeMenuDuplicates(problems);
 			logIdFingerprint();
 		} catch (Throwable t) {
 			BetterOPlenty.LOGGER.warn("Content audit could not complete; this is the audit's own "
@@ -94,8 +76,9 @@ public final class BOPAudit {
 
 		if (problems.isEmpty()) {
 			BetterOPlenty.LOGGER.info(
-				"Content audit: {} blocks and {} items, all with name, desc, model and a creative slot; "
-					+ "{} mob(s), all with name and guidebook description.",
+				"Content audit: {} blocks and {} items, all with name, desc and model; "
+					+ "{} mob(s), all with name and guidebook description. Creative slots are audited "
+					+ "separately, when the creative menu is first built.",
 				blocks, items, BOPEntities.REGISTERED.size());
 		} else {
 			BetterOPlenty.LOGGER.warn("Content audit found {} problem(s) across {} blocks, {} items and "
@@ -251,6 +234,80 @@ public final class BOPAudit {
 		if (key.concat(".desc").equals(i18n.translateKey(key + ".desc"))) {
 			problems.add(name + ": missing " + key + ".desc (rule 2 -- the Ctrl tooltip)");
 		}
+	}
+
+	public static void auditCreativeMenu() {
+		List<String> problems = new ArrayList<>();
+		int blocks = 0;
+		int items = 0;
+		String builtBy;
+
+		try {
+			builtBy = creativeMenuTrigger();
+			Set<Integer> inCreative = creativeMenuItemIds();
+
+			for (Block<?> block : ownBlocks()) {
+				blocks++;
+
+				if (!block.hasTag(BlockTags.NOT_IN_CREATIVE_MENU) && !inCreative.contains(block.asItem().id)) {
+					problems.add(block.namespaceId() + MISSING_FROM_CREATIVE);
+				}
+			}
+			for (Item item : ownItems()) {
+				items++;
+				if (!inCreative.contains(item.id)) {
+					problems.add(item.namespaceID + MISSING_FROM_CREATIVE);
+				}
+			}
+			auditCreativeMenuDuplicates(problems);
+		} catch (Throwable t) {
+			BetterOPlenty.LOGGER.warn("Creative menu audit could not complete; this is the audit's own "
+				+ "problem, not the mod's.", t);
+			return;
+		}
+
+		if (problems.isEmpty()) {
+			BetterOPlenty.LOGGER.info("Creative menu audit: {} blocks and {} items checked, none missing "
+				+ "and none listed twice. Menu built by {}.", blocks, items, builtBy);
+		} else {
+			BetterOPlenty.LOGGER.warn("Creative menu audit found {} problem(s) across {} blocks and {} "
+				+ "items; menu built by {}:", problems.size(), blocks, items, builtBy);
+			for (String problem : problems) {
+				BetterOPlenty.LOGGER.warn("  - {}", problem);
+			}
+		}
+	}
+
+	private static String creativeMenuTrigger() {
+		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+		for (int i = 0; i < stack.length - 1; i++) {
+			if ("<clinit>".equals(stack[i].getMethodName())
+					&& MenuInventoryCreative.class.getName().equals(stack[i].getClassName())) {
+				return stack[i + 1].getClassName() + "." + stack[i + 1].getMethodName();
+			}
+		}
+		return "an unknown caller (not reached from the menu's static initialiser)";
+	}
+
+	private static List<Block<?>> ownBlocks() {
+		List<Block<?>> own = new ArrayList<>();
+		for (Block<?> block : Blocks.blocksList) {
+			if (block != null && BetterOPlenty.MOD_ID.equals(block.namespaceId().namespace())) {
+				own.add(block);
+			}
+		}
+		return own;
+	}
+
+	private static List<Item> ownItems() {
+		List<Item> own = new ArrayList<>();
+		for (Item item : Item.itemsList) {
+			if (item != null && !(item instanceof ItemBlock)
+					&& BetterOPlenty.MOD_ID.equals(item.namespaceID.namespace())) {
+				own.add(item);
+			}
+		}
+		return own;
 	}
 
 	private static Set<Integer> creativeMenuItemIds() {
