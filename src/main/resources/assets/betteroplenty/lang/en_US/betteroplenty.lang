@@ -1,18 +1,3 @@
-# Finally More Biomes en_US localization -- the display names for this port's blocks, items and
-# biomes. Transcribed from Biomes O' Plenty's own en_US strings, merged across both classic trees
-# with 1.2.1 winning on any shared key.
-#
-# This file ships, unlike the art. It is the labels a block needs to be usable rather than
-# creative work, and bridging it would leave every block in the mod showing a raw translation key.
-# NOTICE.md records that reasoning where anyone checking the licence position will find it.
-#
-# GENERATED -- do not hand-edit; edit the importer or the source strings.
-#
-# Keys are BOP's originals, unchanged. They still need remapping to this port's
-# registered names once blocks/items exist (BTA uses tile.<modid>.<name>.name).
-# Read by net.minecraft.core.lang.Language$Default.loadNamespace via
-# java.util.Properties.load(reader) in UTF-8.
-
 achievement.bop.achAllBOP=Achievements O' Plenty
 achievement.bop.achAllBOP.desc=You got all of the Finally More Biomes achievements!
 achievement.bop.achAmbrosia=Drink of the Gods

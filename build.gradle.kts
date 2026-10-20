@@ -1,6 +1,3 @@
-// `java` in a build script is the JavaPluginExtension, so java.io/java.util have
-// to be imported rather than written out; without these the obfuscation helpers
-// below resolve `java.util.zip` against the extension and fail to compile.
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import java.io.ByteArrayOutputStream
@@ -43,25 +40,7 @@ repositories {
         metadataSources { artifact() }
     }
 }
-/**
- * HalpLibe, to be nested inside the built jar so the mod runs without a separate download.
- *
- * Why not loom's `include()`: it nests during **`remapJar`**, and the obfuscated jar -- the one
- * that actually gets handed out -- is assembled from the plain **`jar`** task instead (see
- * `registerObfuscatedJar`, which reads `tasks.named<Jar>("jar")`). So `include()` would put
- * HalpLibe into an artifact nobody ships and leave the distributed one exactly as broken as
- * before. Nesting into `jar` directly is what puts it where it is needed.
- *
- * The obfuscation pipeline carries it through untouched: `writeObfuscatedJar` copies every
- * non-class, non-packed resource byte for byte and explicitly preserves `META-INF/` directories,
- * and `rewriteModJson` edits the manifest **textually**, keeping "every field this build does not
- * know about" -- which is what lets the `jars` key survive obfuscation.
- *
- * `isTransitive = false` so this is HalpLibe alone. Its own dependencies are the loader and the
- * game, both already present at runtime; pulling its whole graph in would nest jars the game has.
- *
- * Legally clear: HalpLibe is CC0-1.0, per the `license` field in its own fabric.mod.json.
- */
+
 val bundledHalpLibe: Configuration by configurations.creating {
 	isTransitive = false
 }
@@ -69,20 +48,15 @@ val bundledHalpLibe: Configuration by configurations.creating {
 dependencies {
     minecraft("::${libs.versions.bta.get()}")
 
-	// Required at compilation & runtime
-	// included in builds as a runtime dependency
 	implementation(libs.loader)
-	implementation(libs.halplibe) // If you do not need halplibe you can delete this line
+	implementation(libs.halplibe)
 
-	// Only required at compilation
-	// provides documentation, can be removed if that isn't needed
 	compileOnly(libs.bundles.btaLwjgl)
 	compileOnly(libs.joml)
 	compileOnly(libs.joml.primitives)
 	compileOnly(libs.slf4jApi)
 
-	// Only required for development/launch at runtime, won't be part of any builds
-	localRuntime(libs.modMenu) // Optional, can be removed
+	localRuntime(libs.modMenu)
 	runtimeClasspath(libs.clientJar)
 	val lwjglVer = libs.versions.lwjgl.get()
 	localRuntime(platform("org.lwjgl:lwjgl-bom:${lwjglVer}"))
@@ -92,7 +66,6 @@ dependencies {
 	localRuntime("org.lwjgl:lwjgl-opengl::$lwjglNatives")
 	localRuntime("org.lwjgl:lwjgl-stb::$lwjglNatives")
 
-	// HalpLibe, resolved on its own so it can be nested inside the jar. See `bundledHalpLibe`.
 	bundledHalpLibe(libs.halplibe)
 }
 
@@ -152,8 +125,7 @@ tasks {
 			"java" to libs.versions.java.get(),
 			"modmenu" to libs.versions.modMenu.get()
 		)
-		// This is needed for gradle to recognize changes
-		// made to expanded files
+
 		inputs.properties(resourceMap)
 
 		duplicatesStrategy = DuplicatesStrategy.INCLUDE
@@ -165,20 +137,7 @@ tasks {
 			}
 		})
 	}
-	/**
-	 * Nests HalpLibe inside the jar, and declares it there.
-	 *
-	 * The `jars` key is added HERE rather than in `src/main/resources/fabric.mod.json`, and that
-	 * placement is the whole point: a checked-in `jars` entry would also land in
-	 * `build/resources/main`, which is what the development client loads the mod from -- and there
-	 * is no `META-INF/jars/` in a directory-based mod, so every `runClient`, `runServer` and agent
-	 * client would be pointed at a nested jar that does not exist. Injecting it into the archive
-	 * only means the shipped jar carries HalpLibe while the dev run keeps resolving it off the
-	 * classpath exactly as before.
-	 *
-	 * Textual, because `writeObfuscatedJar` rewrites this same file textually to preserve fields it
-	 * does not model; parsing and re-emitting here would reformat the file out from under it.
-	 */
+
 	named<Jar>("jar") {
 		from(bundledHalpLibe) { into("META-INF/jars") }
 		filesMatching("fabric.mod.json") {
@@ -195,7 +154,7 @@ tasks {
 		}
 	}
 }
-// Removes all outdated manifest.json dependencies
+
 configurations.configureEach {
 	exclude(group = "org.lwjgl.lwjgl")
 	exclude(group = "net.java.jutils")
@@ -204,48 +163,8 @@ configurations.configureEach {
 	exclude(group = "net.minecraft", module = "launchwrapper")
 }
 
-// =============================================================================
-//  The obfuscated build
-//
-//  `gradlew build` writes two jars. The normal one is unchanged. Beside it goes
-//  `-obf.jar`: the same mod with its class and member names replaced, its
-//  textures and sounds renamed and their bytes folded, and agent mode absent.
-//
-//  Three things make that possible without touching a line of mod logic:
-//
-//    * ProGuard renames the code. It runs with -dontshrink -dontoptimize, so it
-//      is a renamer and nothing else -- no method is inlined, no branch moved,
-//      no class dropped. What ships is the same bytecode under other names.
-//    * The names that live outside bytecode -- fabric.mod.json's entrypoints and
-//      the mixin config's class list -- are rewritten from ProGuard's own
-//      mapping file, so they cannot drift from what it produced.
-//    * Resources are renamed here and resolved at runtime by ObfResources. See
-//      that class for why the reverse (rewriting the paths in the code) is not
-//      possible for this mod.
-//
-//  Agent mode is removed at the ProGuard input filter, which is the whole of it:
-//  com.betteroplenty.agent is reachable from exactly one class, the mixin that
-//  calls into it, and that goes out in the same filter.
-// =============================================================================
-
-/**
- * Fixed, so two builds of the same source produce byte-identical jars. This is
- * not a secret and is not used as one -- it only decides which hashed name a
- * given texture lands on.
- */
 val obfSalt = "betteroplenty/pack/v1"
 
-/**
- * Folds every packed resource, and the manifest that lists them.
- *
- * Read out of `ObfResources.java` rather than written here as well, because the
- * packer and the class that unpacks have to agree byte for byte and there is no
- * check that can be run on the jar to prove they do -- both sides of any such
- * check would be this build. Two copies of the same constant is exactly the shape
- * of a bug that ships: the build succeeds, verification passes, and every texture
- * in the mod renders as noise on the first launch. So there is one copy, and the
- * class that has to have it holds it.
- */
 val obfKey: ByteArray = run {
 	val source = layout.projectDirectory
 		.file("src/main/java/com/betteroplenty/res/ObfResources.java").asFile
@@ -262,24 +181,16 @@ val obfKey: ByteArray = run {
 	bytes.toByteArray()
 }
 
-/** Where the packed bytes live, and where the manifest that maps to them lives. */
 val obfPayloadRoot = "assets/betteroplenty/x"
 val obfManifestEntry = "betteroplenty.dat"
 
-/** The mixin config's `package`; ProGuard is told to leave these two intact. */
 val obfMixinPackages = listOf("com.betteroplenty.mixin", "com.betteroplenty.mixin.client")
 
-/**
- * Dropped from the obfuscated jar. The mixin has to go with the package: it is
- * the only thing outside it that names AgentMode, and a mixin config entry that
- * points at an absent class is a hard startup failure, not a warning.
- */
 val obfExcludedClasses = listOf(
 	"com/betteroplenty/agent/**",
 	"com/betteroplenty/mixin/client/MinecraftAgentMixin.class",
 )
 
-/** Mixin config entries that go with them, by their name in the config's list. */
 val obfExcludedMixins = listOf("client.MinecraftAgentMixin")
 
 val proguardTool: Configuration by configurations.creating {
@@ -293,32 +204,12 @@ dependencies {
 
 val obfWorkDir: Provider<Directory> = layout.buildDirectory.dir("obfuscation")
 
-/** The jar that ships. */
 val obfJarFile: Provider<RegularFile> =
 	layout.buildDirectory.file("libs/${modName.get()}-$modVersion-obf.jar")
 
-/**
- * The same jar with agent mode left in, for `runObfClient` to drive.
- *
- * Not in `libs/`, and not built by `build` -- it exists so that the obfuscation
- * can be tested by playing it. Testing the shipped jar directly is not possible:
- * driving the client is what agent mode is, and the shipped jar is defined by not
- * having it. Everything else about the two is produced by the same code below
- * from the same input jar, so what this proves about ProGuard's renaming and the
- * resource packing holds for both; `verifyObfuscatedJar` checks that the only
- * difference is the one intended.
- */
 val obfAgentJarFile: Provider<RegularFile> =
 	obfWorkDir.map { it.file("${modName.get()}-$modVersion-obf-agent.jar") }
 
-/**
- * Registers the two-task pipeline -- ProGuard, then packaging -- for one variant.
- *
- * ProGuard's input is filtered to `**.class`: resources are not passed through
- * it at all. Its resource handling would have to be told file by file which
- * names to adapt and which to leave alone, and the packaging step rewrites most
- * of them anyway.
- */
 fun registerObfuscatedJar(
 	jarTaskName: String,
 	variant: String,
@@ -339,10 +230,7 @@ fun registerObfuscatedJar(
 		dependsOn(jarTask)
 
 		val inputJar = jarTask.flatMap { it.archiveFile }
-		// compileClasspath carries BTA, the loader (and with it Mixin), HalpLibe and
-		// the LWJGL/JOML/slf4j stubs. ProGuard needs the class hierarchy of all of
-		// them to know which of our methods override a library method and therefore
-		// cannot be renamed -- onInitialize() being the one that matters most.
+
 		val libraryJars = sourceSets.main.map { it.compileClasspath }
 
 		inputs.file(inputJar)
@@ -369,9 +257,6 @@ fun registerObfuscatedJar(
 				dropped.joinToString("") { "!$it," } + "**.class)"
 			lines += "-outjars '${path(classesJar.get().asFile)}'"
 
-			// Java 9+ has no rt.jar; the platform classes come from the toolchain's
-			// jmods. java.desktop is not optional here -- BufferedImage and ImageIO
-			// are in the signature of everything the atlas touches.
 			val jmods = File(toolchainHome.get(), "jmods").listFiles()
 				?.filter { it.name.endsWith(".jmod") }
 				?.sortedBy { it.name }
@@ -387,17 +272,11 @@ fun registerObfuscatedJar(
 
 			lines += ""
 			lines += "-printmapping '${path(mappingFile.get().asFile)}'"
-			// A renamer, not an optimiser. Shrinking would decide for itself that a
-			// biome only the range map ever names is unused; optimising would move
-			// code a mixin injects into. Neither risk buys anything here -- the ask
-			// is unreadable names, and renaming alone delivers exactly that.
+
 			lines += "-dontshrink"
 			lines += "-dontoptimize"
 			lines += "-dontnote"
-			// Mixin reads its own annotations off these classes at load time, and
-			// InnerClasses is what keeps CallbackInfoReturnable's nesting resolvable.
-			// SourceFile and LineNumberTable are deliberately absent: dropping them
-			// is part of the point, at the cost of line numbers in stack traces.
+
 			lines += "-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod,Exceptions"
 
 			lines += ""
@@ -436,14 +315,6 @@ fun registerObfuscatedJar(
 			lines += "    public static **[] values();"
 			lines += "    public static ** valueOf(java.lang.String);"
 			lines += "}"
-
-			// There is deliberately no -dontwarn here. Against the classpath assembled
-			// above ProGuard resolves every reference in the mod and reports nothing,
-			// so a warning appearing later is real news: a library that stopped being
-			// on compileClasspath, and with it a class hierarchy ProGuard can no longer
-			// see -- which is how an override it should have left alone gets renamed.
-			// ProGuard refuses to write an output jar while any warning stands, so that
-			// case fails the build rather than shipping quietly.
 
 			configFile.get().asFile.writeText(lines.joinToString(System.lineSeparator()))
 			args = listOf("@${path(configFile.get().asFile)}")
@@ -495,20 +366,6 @@ val obfuscatedAgentJar = registerObfuscatedJar(
 
 tasks.named("assemble") { dependsOn(obfuscatedJar) }
 
-// -----------------------------------------------------------------------------
-//  Running the obfuscated jar
-//
-//  `runClient` launches the mod from build/classes/java/main -- the loose,
-//  un-obfuscated classes -- so it can say nothing about whether the jar works.
-//  This run configuration is identical to it except that those two directories
-//  are off the classpath and the jar is on it, which is also how the loader then
-//  discovers the mod: through the fabric.mod.json inside the jar, entrypoints,
-//  mixin config, packed resources and all.
-//
-//  It gets its own run directory. The obfuscated build has its own id manifest
-//  behaviour to prove and its own world to prove it in, and nothing here should
-//  be able to touch the world in run/.
-// -----------------------------------------------------------------------------
 loom {
 	runs {
 		create("obfClient") {
@@ -517,14 +374,7 @@ loom {
 			runDir = "run-obf"
 			ideConfigGenerated(false)
 		}
-		// The server half of the same idea, and it exists because a whole class of bug is
-		// invisible without it. `MinecraftServer.startServer()` builds every WorldServer, fills
-		// three dimension-keyed maps and installs `WorldManager` as the level listener -- none of
-		// which happens on a client, in any run configuration. 0.1.11 fixed two bugs that lived
-		// entirely in that gap (ledger rows 33 and 34), and the SHIPPED artefact is the obfuscated
-		// jar, whose mixin config carries renamed classes (`server: ["a.a"]`). So "the mixin is in
-		// the jar" and "the mixin applies on a server" are two different claims and this proves the
-		// second one.
+
 		create("obfServer") {
 			server()
 			configName = "Finally More Biomes server (obfuscated jar)"
@@ -537,36 +387,19 @@ loom {
 tasks.named<JavaExec>("runObfClient") {
 	description = "Runs the obfuscated jar itself, rather than the loose dev classes."
 
-	// The agent variant, because this is the configuration that has to be driven
-	// to be worth anything. -PobfJar=<path> overrides it to run any other build,
-	// which is how the shipped jar gets its own launch.
 	dependsOn(obfuscatedAgentJar)
 }
 
 tasks.named<JavaExec>("runObfServer") {
 	description = "Runs a dedicated server from the obfuscated jar -- the artefact that ships."
 
-	// The plain obfuscated jar, not the agent variant: this configuration exists to exercise what
-	// players actually run, and agent mode is client-side anyway.
 	dependsOn(obfuscatedJar)
 	standardInput = System.`in`
 }
 
-// Swapping the classpath has to happen in `afterEvaluate`, not in the task's own `doFirst`.
-//
-// It used to be a `doFirst`, and that stopped working: Gradle finalizes `JavaExec.classpath`
-// before the task executes, so assigning to it there now fails outright with "the value for
-// property 'internalClasspath' is final and cannot be changed any further". The task simply could
-// not run, which is how the obfuscated jar went unexercised.
-//
-// `afterEvaluate` is the window that works. Loom has populated the run configuration's classpath by
-// then, and nothing has been finalized yet. It costs eager resolution of the classpath at
-// configuration time, which for a dev-only task nobody runs by accident is a fair price.
 afterEvaluate {
 	tasks.named<JavaExec>("runObfClient") {
-		// The agent variant by default, because this is the configuration that has to be driven to
-		// be worth anything. -PobfJar=<path> overrides it to run any other build, which is how the
-		// shipped jar gets its own launch.
+
 		val jar = providers.gradleProperty("obfJar").map { File(it) }
 			.orElse(obfAgentJarFile.map { it.asFile }).get()
 		check(jar.isFile) { "No such jar: $jar" }
@@ -581,9 +414,6 @@ afterEvaluate {
 		logger.lifecycle("runObfClient will run {} ({} classpath entries)", jar.name, stripped.size + 1)
 	}
 
-	// Same swap for the server, and the same check that it actually removed something. Defaults to
-	// the plain obfuscated jar rather than the agent one; -PobfJar=<path> overrides it, which is how
-	// a previous release gets launched for an A/B.
 	tasks.named<JavaExec>("runObfServer") {
 		val jar = providers.gradleProperty("obfJar").map { File(it) }
 			.orElse(obfJarFile.map { it.asFile }).get()
@@ -600,19 +430,6 @@ afterEvaluate {
 	}
 }
 
-/**
- * Every member name the mod passes to a reflective lookup.
- *
- * Matches the literal argument of `getMethod`, `getDeclaredMethod`, `getField` and
- * `getDeclaredField` across the main source set. Names belonging to BTA rather
- * than to the mod (`Dimension.portalBlock`) come back too and are harmless:
- * ProGuard does not rename library members, so keeping their names is a no-op.
- *
- * A lookup built from a non-literal string would be missed. Nothing in the mod
- * does that today; if one is ever added, it fails the same loud way -- a
- * NoSuchMethodException on the first launch of the obfuscated build -- rather
- * than corrupting anything.
- */
 fun scrapeReflectedMembers(): Set<String> {
 	val call = Regex("""get(?:Declared)?(?:Method|Field)\s*\(\s*"([A-Za-z_$][A-Za-z0-9_$]*)"""")
 	return sourceSets.main.get().allJava.asFileTree.files
@@ -621,11 +438,10 @@ fun scrapeReflectedMembers(): Set<String> {
 		.toSet()
 }
 
-/** ProGuard's mapping file, as `old fully-qualified name -> new one`. */
 fun readObfMapping(file: File): Map<String, String> {
 	val renames = LinkedHashMap<String, String>()
 	file.forEachLine { line ->
-		// Class lines start at column 0 and end in a colon; member lines are indented.
+
 		if (line.isNotEmpty() && !line[0].isWhitespace() && line.endsWith(":")) {
 			val arrow = line.indexOf(" -> ")
 			if (arrow > 0) {
@@ -636,7 +452,6 @@ fun readObfMapping(file: File): Map<String, String> {
 	return renames
 }
 
-/** The hashed classpath path a logical resource path is served from. */
 fun obfPhysicalPath(logical: String): String {
 	val digest = MessageDigest.getInstance("SHA-256")
 	digest.update(obfSalt.toByteArray(Charsets.UTF_8))
@@ -645,14 +460,12 @@ fun obfPhysicalPath(logical: String): String {
 	return "/$obfPayloadRoot/${hex.substring(0, 2)}/${hex.substring(2, 14)}"
 }
 
-/** XOR in place. Must stay identical to `ObfResources.fold`. */
 fun obfFold(bytes: ByteArray, seed: Int) {
 	for (i in bytes.indices) {
 		bytes[i] = (bytes[i].toInt() xor obfKey[(i + seed) % obfKey.size].toInt()).toByte()
 	}
 }
 
-/** Must stay identical to `ObfResources.seed`. */
 fun obfSeed(physical: String): Int {
 	var hash = 0
 	for (c in physical) {
@@ -661,7 +474,6 @@ fun obfSeed(physical: String): Int {
 	return Math.floorMod(hash, obfKey.size)
 }
 
-/** A mixin config entry, relative to the config's package, after renaming. */
 fun obfMixinEntry(entry: String, renames: Map<String, String>): String {
 	val pkg = obfMixinPackages.first()
 	val old = "$pkg.$entry"
@@ -675,11 +487,6 @@ fun obfMixinEntry(entry: String, renames: Map<String, String>): String {
 	return new.removePrefix("$pkg.")
 }
 
-/**
- * Assembles the obfuscated jar: ProGuard's classes, the mod's resources with
- * textures and sounds renamed and folded, and the manifest tying the two back
- * together.
- */
 fun writeObfuscatedJar(
 	source: File,
 	obfuscatedClasses: File,
@@ -691,11 +498,8 @@ fun writeObfuscatedJar(
 	val texturesRoot = "assets/betteroplenty/textures/"
 	val soundsRoot = "assets/betteroplenty/sounds/"
 
-	// Source jar entry -> the logical path the game will ask for it by.
 	val packed = LinkedHashMap<String, String>()
-	// sounds.json's "name" field, before -> after. Sounds are the one resource
-	// whose logical name is data rather than a path, so it is renamed too and
-	// nothing is left pointing at "records/bopdisc.ogg".
+
 	val soundNames = LinkedHashMap<String, String>()
 
 	ZipFile(source).use { zip ->
@@ -710,9 +514,7 @@ fun writeObfuscatedJar(
 						packed[name] = "/$name"
 					}
 					name.startsWith(soundsRoot) && name.endsWith(".ogg") -> {
-						// The extension has to survive: paulscode picks its codec
-						// by it (SoundEngine registers "ogg" -> CodecJOrbis), and a
-						// file called 9af3c2 with no suffix simply will not play.
+
 						val renamed = obfPhysicalPath("/$name").substringAfterLast('/') + ".ogg"
 						soundNames[name.removePrefix(soundsRoot)] = renamed
 						packed[name] = "/$soundsRoot$renamed"
@@ -740,8 +542,7 @@ fun writeObfuscatedJar(
 	ZipOutputStream(destination.outputStream().buffered()).use { out ->
 		fun put(name: String, bytes: ByteArray) {
 			if (!written.add(name)) return
-			// Fixed timestamp, matching what the Jar task writes, so two builds of
-			// the same source produce identical jars.
+
 			out.putNextEntry(ZipEntry(name).apply { time = 315532800000L })
 			out.write(bytes)
 			out.closeEntry()
@@ -752,22 +553,17 @@ fun writeObfuscatedJar(
 			out.closeEntry()
 		}
 
-		// 1. Every class, straight from ProGuard, renamed and already stripped of
-		//    the agent package by the input filter.
 		ZipFile(obfuscatedClasses).use { zip ->
 			zip.entries().asSequence().filter { !it.isDirectory }.sortedBy { it.name }.forEach {
 				put(it.name, zip.getInputStream(it).readBytes())
 			}
 		}
 
-		// 2. Resources. Packed ones are renamed and folded; three name-carrying
-		//    files are rewritten; the rest are copied byte for byte.
 		ZipFile(source).use { zip ->
 			zip.entries().asSequence().sortedBy { it.name }.forEach { entry ->
 				val name = entry.name
 				if (entry.isDirectory) {
-					// Only asset directories. The class package directories would
-					// spell out the original package tree beside the renamed one.
+
 					if (name.startsWith("assets/") || name.startsWith("META-INF/")) {
 						putDirectory(name)
 					}
@@ -786,7 +582,6 @@ fun writeObfuscatedJar(
 				}
 			}
 
-			// 3. The packed payloads, under their hashed names.
 			packed.forEach { (entryName, logical) ->
 				val physical = physicalOf.getValue(logical).removePrefix("/")
 				val bytes = zip.getInputStream(zip.getEntry(entryName)).readBytes()
@@ -796,8 +591,6 @@ fun writeObfuscatedJar(
 			}
 		}
 
-		// 4. The map from logical to hashed, without which none of the above
-		//    can be found.
 		put(obfManifestEntry, manifestBytes)
 	}
 
@@ -807,21 +600,6 @@ fun writeObfuscatedJar(
 		"(${renames.size} classes renamed, ${packed.size} resources packed, verified)"
 }
 
-/**
- * Reads the finished jar back and fails the build if it is not coherent.
- *
- * Every check here is for a break that produces a jar which looks perfectly
- * well-formed and then misbehaves at runtime, mostly by rendering magenta or by
- * refusing to start:
- *
- *  * a manifest entry whose payload is not in the jar, or a texture in the normal
- *    jar with no manifest entry -- either way that texture is gone;
- *  * a payload that does not unfold to the format its name claims, i.e. a file
- *    that was packed from the wrong source or folded twice;
- *  * an entrypoint or mixin class named in JSON that ProGuard renamed out from
- *    under it, which is a hard startup failure;
- *  * a plaintext asset or an agent class that should not have shipped.
- */
 fun verifyObfuscatedJar(jar: File, source: File, keepAgent: Boolean) {
 	val problems = mutableListOf<String>()
 
@@ -850,8 +628,7 @@ fun verifyObfuscatedJar(jar: File, source: File, keepAgent: Boolean) {
 				return@forEach
 			}
 			val payload = bytes(entry)
-			// If it is already readable it was never folded, and the jar is not
-			// obfuscated at all.
+
 			if (logical.endsWith(".png") && payload.take(4) == listOf<Byte>(-119, 80, 78, 71)) {
 				problems += "$logical was written unfolded"
 			}
@@ -923,21 +700,18 @@ fun verifyObfuscatedJar(jar: File, source: File, keepAgent: Boolean) {
 	}
 }
 
-/** Points fabric.mod.json's entrypoints at the names ProGuard gave those classes. */
 fun rewriteModJson(bytes: ByteArray, renames: Map<String, String>): ByteArray {
 	var text = String(bytes, Charsets.UTF_8)
 	val json = JsonSlurper().parseText(text) as Map<*, *>
 	val entrypoints = json["entrypoints"] as? Map<*, *> ?: emptyMap<String, Any>()
 	entrypoints.values.filterIsInstance<List<*>>().flatten().filterIsInstance<String>().forEach {
 		val new = renames[it] ?: error("fabric.mod.json names '$it', which ProGuard did not map.")
-		// Textual, so the file keeps its formatting and every field this build
-		// does not know about. The names are fully qualified and unique.
+
 		text = text.replace("\"$it\"", "\"$new\"")
 	}
 	return text.toByteArray(Charsets.UTF_8)
 }
 
-/** Renames the mixin classes in the config, and drops the ones left out of this jar. */
 fun rewriteMixinConfig(
 	bytes: ByteArray,
 	renames: Map<String, String>,
@@ -957,20 +731,6 @@ fun rewriteMixinConfig(
 		.toByteArray(Charsets.UTF_8)
 }
 
-/**
- * Points each sound event at the renamed .ogg beside it -- where there is one.
- *
- * A name with no .ogg in the jar used to be an error, on the reasonable assumption that
- * sounds.json only ever named audio the jar shipped. That stopped being true when BOP's audio
- * moved out to the runtime asset bridge: all eleven files now come from a copy the player
- * supplies, and none of them is in the jar to rename.
- *
- * Such a name is left exactly as it is, which is what the bridge needs. The generated pack is a
- * TexturePackCustom and serves the logical path directly -- obfuscation never reaches it, by the
- * same deliberate design that lets a player's own texture pack retexture an obfuscated build (see
- * TexturePackPackedMixin). Renaming the reference here would point it at a hashed name that
- * exists in neither the jar nor the pack.
- */
 fun rewriteSoundsJson(bytes: ByteArray, soundNames: Map<String, String>): ByteArray {
 	@Suppress("UNCHECKED_CAST")
 	val json = JsonSlurper().parseText(String(bytes, Charsets.UTF_8))
@@ -985,7 +745,7 @@ fun rewriteSoundsJson(bytes: ByteArray, soundNames: Map<String, String>): ByteAr
 		.toByteArray(Charsets.UTF_8)
 }
 
-fun resolveLwjglNatives(): String { // Sourced from https://www.lwjgl.org/
+fun resolveLwjglNatives(): String {
 	return Pair(
 		System.getProperty("os.name")!!,
 		System.getProperty("os.arch")!!

@@ -36,20 +36,7 @@ pluginManagement {
 		return chosenRepository
 	}
 	repositories {
-		// The two general-purpose repositories go FIRST, and that ordering is load-bearing rather
-		// than tidiness.
-		//
-		// Gradle stops at the first repository that answers, but a repository that answers with a
-		// 5xx aborts plugin resolution outright instead of falling through to the next one. So when
-		// maven.thesignalumproject.net went down and started returning HTTP 522, resolution of
-		// `foojay-resolver-convention` -- a plugin that lives on the Gradle plugin portal and has
-		// nothing to do with any mod repository -- failed on every clean checkout, while a warm
-		// cache locally hid it completely.
-		//
-		// With the portal first, the plugins this block resolves are found before an unhealthy mod
-		// repository is ever consulted. It does not make a mod repository being down harmless -- the
-		// dependencies in build.gradle.kts genuinely live there -- but it stops an outage on one
-		// host from breaking resolution of things that host never had.
+
 		gradlePluginPortal()
 		mavenCentral()
 		maven(

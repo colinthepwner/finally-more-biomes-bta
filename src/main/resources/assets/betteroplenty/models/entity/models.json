@@ -6,16 +6,16 @@
 	],
 	"renderers": {
 		"betteroplenty:bird": {
-			"main": "geometry.bird"
+			"main": "geometry.betteroplenty.bird"
 		},
 		"betteroplenty:glob": {
 			"main": "geometry.slime"
 		},
 		"betteroplenty:wasp": {
-			"main": "geometry.wasp"
+			"main": "geometry.betteroplenty.wasp"
 		},
 		"betteroplenty:pixie": {
-			"main": "geometry.pixie"
+			"main": "geometry.betteroplenty.pixie"
 		}
 	}
 }

@@ -1,40 +1,4 @@
 #!/usr/bin/env python3
-"""
-Generate assets/betteroplenty/asset-bridge.properties from the provenance classification.
-
-The manifest is what BOPAssetBridge reads at runtime: it maps a file inside a copy of
-Biomes O' Plenty that the *player* supplies onto the path this mod wants that art at,
-inside a generated texture pack. This mod ships none of the files on the left.
-
-    python tools/classify_asset_provenance.py --json build/provenance.json
-    python tools/gen_asset_bridge_manifest.py --provenance build/provenance.json
-
-Generated rather than hand-written because there are 450 of them and because a hand list
-would drift the moment the importer's precedence changed. The classifier decides what is
-upstream art by comparing bytes; this only reshapes that answer into a properties file.
-
-ONLY RUNNABLE AGAINST A PRE-STRIP TREE. The classifier can only call a file "bridged" by
-hashing it, so it has to be present; on today's stripped tree the bridged bucket is empty
-and this would happily write an EMPTY manifest over the real 458-entry one (it did, once,
-on 2026-08-10 -- caught by the diff). The guard in main() now refuses instead. To really
-regenerate: git-restore the pre-strip assets, classify, generate, re-strip.
-
-Keys are the last two path segments, not the base name
------------------------------------------------------
-Mo' Creatures gets away with base names because mob skins have unique ones. BOP does not:
-`blank.png` is in both `blocks/` and `items/`, `dandelion.png` is a block and a particle,
-six armour textures share a name with their item icon, and four mobs each have a
-`say.ogg` and a `hurt.ogg`. Thirteen collisions in all, every one resolved by keeping the
-parent directory. The bridge still falls back to a base-name match for any key written
-without a slash, which is what the Minecraft section below relies on.
-
-One key can feed several paths
-------------------------------
-The right-hand side is a comma-separated list, for the places where one upstream file is
-the source of several files here -- BOP draws one flower band and this port needs it as
-both an armour layer and an inventory icon, and `bones_large.png` is byte-identical to
-its medium and small siblings upstream.
-"""
 from __future__ import annotations
 
 import argparse
@@ -48,37 +12,12 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_OUT = REPO / "src/main/resources/assets/betteroplenty/asset-bridge.properties"
 
-# Written alongside the manifest: manifest key -> sha256 of the bytes this port was built and
-# verified against.
-#
-# It exists because "first source to supply a file wins" is not good enough when the player hands
-# over both BOP trees, which is what the README tells them to do. 71 textures exist in both trees
-# with DIFFERENT bytes -- the shrub, every magic and pine leaf, most of the log hearts, amethyst ore
-# -- and the port was built against 1.2.1's versions of them. Source order decided which one won,
-# and source order came down to the archives' filenames: "BiomesOPlenty-BOP-1.1.2-1.6.4.zip" sorts
-# before "BiomesOPlenty-BOP-b1.7.3.zip", so the older art won all 71 and the mod quietly rendered
-# art it had never been checked against.
-#
-# With a hash per entry the bridge can prefer the exact bytes regardless of which archive it reads
-# first, or what those archives are called. A non-matching file is still accepted when nothing
-# better turns up, so an unusual BOP build degrades to "slightly different art" rather than to
-# "missing texture".
 DEFAULT_HASH_OUT = REPO / "src/main/resources/assets/betteroplenty/asset-bridge-hashes.properties"
 
 PACK_PREFIX = "assets/"
 
-# Empty since 0.1.4. This used to bridge eight vanilla faces (mycelium, giant-mushroom skins,
-# hardened clay) out of "whatever Minecraft jar the player already has" -- and no player had
-# one: those base names only exist in Minecraft ~1.6-1.12, the dev instance quietly satisfied
-# them from run/minecraft-1.8.jar, and everyone else's Badlands rendered as the atlas default
-# fill, solid magenta. The art is now generated from BTA's own textures by
-# tools/gen_vanilla_standins.py and ships in the jar. The section stays so the shape of the
-# manifest (and this history) is not lost the next time somebody needs a vanilla face.
 MINECRAFT_SECTION: list[tuple[str, list[str]]] = []
 
-# Order and headings for the BOP half, by upstream directory. Anything not named here is
-# emitted under "Other" rather than dropped, so a new upstream directory shows up in the
-# diff instead of vanishing.
 SECTIONS = [
     ("blocks", "Blocks", "BOP's block art. The bulk of the mod."),
     ("items", "Items", "Item icons, including the ones this port also uses as armour layers."),
@@ -109,13 +48,6 @@ def key_for(upstream: str) -> str:
 
 
 def choose_upstream(record: dict) -> str:
-    """
-    Which upstream name to key a shipped file on, when several hold the same bytes.
-
-    Prefer the candidate whose own base name matches the shipped file's -- `bones_medium`
-    from `bones_medium.png` rather than from its byte-identical `bones_large.png` sibling.
-    It reads better, and it stays correct if a later BOP redraws one of the three.
-    """
     candidates = [record["upstream"]] + record.get("also_in", [])
     target = Path(record["path"]).name.lower()
     for candidate in candidates:
@@ -125,20 +57,6 @@ def choose_upstream(record: dict) -> str:
 
 
 def write_hashes(out: Path, keys, references: list[Path]) -> None:
-    """
-    Emit `manifest key = sha256` for the upstream file that key should resolve to.
-
-    Reference trees are consulted in the order given, and the FIRST one that has the key wins --
-    so the list must be ordered exactly as the port's own precedence is (1.2.1 first, 1.1.1 as
-    fallback, per PORTING-STANDARD 9). That ordering is the whole content of this file: it is what
-    lets the bridge pick 1.2.1's shrub at runtime out of two archives it cannot otherwise tell
-    apart.
-
-    A key with no upstream file is skipped rather than written blank. The Minecraft section has
-    none, since vanilla art is not in these trees, and the bridge treats an absent hash as "no
-    preference" -- which is the correct behaviour for a texture that legitimately comes from
-    whatever Minecraft build the player owns.
-    """
     index: list[dict[str, str]] = []
     for root in references:
         if not root.is_dir():
@@ -209,30 +127,20 @@ def main() -> int:
 
     data = json.loads(args.provenance.read_text(encoding="utf-8"))
 
-    # The docstring's pre-strip warning, enforced. A classification taken on a stripped tree
-    # has nothing in "bridged" and would overwrite the live 458-entry manifest with an empty
-    # one -- silently, since writing an empty file is a perfectly successful run.
     if not data.get("bridged"):
         sys.exit("provenance has an empty 'bridged' bucket -- this classification was taken on a "
                  "stripped tree.\nRegenerating from it would erase the manifest. Use --hashes-only, "
                  "or classify a pre-strip tree.")
 
-    # key -> set of pack paths. A set because several shipped files can resolve to the
-    # same key and the same destination via different upstream candidates.
     mapping: dict[str, set[str]] = defaultdict(set)
     section_of: dict[str, str] = {}
 
     for record in data["bridged"]:
-        # Frame timings, not art. Shipped instead -- see the NOTICE. Bridging a number
-        # would leave every fluid static for anyone without the archive.
         if record["path"].endswith(".mcmeta"):
             continue
         upstream = normalise(choose_upstream(record))
         key = key_for(upstream)
         mapping[key].add(PACK_PREFIX + record["path"])
-        # Grouped by upstream directory, except that mob sounds sit one level deeper --
-        # sound/mob/<mob>/say.ogg -- so their parent is the mob's name, not a category.
-        # Collapse those onto one heading rather than getting a section per mob.
         section_of[key] = "mob" if "/sound/" in upstream else Path(upstream).parent.name.lower()
 
     grouped: dict[str, list[str]] = defaultdict(list)

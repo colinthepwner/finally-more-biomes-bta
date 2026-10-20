@@ -1,23 +1,4 @@
 #!/usr/bin/env python3
-"""
-Remove from the shipped tree every file the asset bridge restores at runtime.
-
-This is the other half of the bridge, and it is driven by the same manifest so the two
-cannot drift: every path on the right-hand side of `asset-bridge.properties` is a file
-this repository must NOT contain, because the bridge's whole purpose is to fetch that
-file from a copy the player supplies instead.
-
-    python tools/strip_bridged_assets.py --check     # fail if any bridged file is present
-    python tools/strip_bridged_assets.py --dry-run   # list what would go
-    python tools/strip_bridged_assets.py             # delete them
-
-`--check` is the one that matters: it runs in the pre-publish audit and in CI, and it is
-what stops a stray `git checkout` or a re-run of the old importer from quietly putting
-Glitchfiend's art back into a public repository. It exits non-zero if anything is found.
-
-Deleting is idempotent and safe to re-run. Empty directories left behind are removed too,
-so the tree does not fill up with husks.
-"""
 from __future__ import annotations
 
 import argparse
@@ -31,12 +12,9 @@ RESOURCES = REPO / "src/main/resources"
 
 
 def bridged_paths() -> list[str]:
-    """Every pack path the manifest promises to restore, relative to src/main/resources."""
     if not MANIFEST.is_file():
         sys.exit(f"manifest not found: {MANIFEST}\nRun tools/gen_asset_bridge_manifest.py first.")
 
-    # Join the backslash continuations the manifest uses for multi-value entries before
-    # splitting into lines, so a two-path value is not read as one path and one orphan.
     text = re.sub(r"\\\s*\n\s*", "", MANIFEST.read_text(encoding="utf-8"))
 
     paths: list[str] = []
@@ -92,8 +70,6 @@ def main() -> int:
         target.unlink()
         touched.add(target.parent)
 
-    # Prune directories the deletion emptied, innermost first so a chain of them goes in
-    # one pass rather than leaving the parent behind.
     removed_dirs = 0
     for directory in sorted(touched, key=lambda d: len(d.parts), reverse=True):
         current = directory
