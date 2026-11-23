@@ -45,15 +45,18 @@
     "client.MobScoreAccessor",
     "client.MinecraftPromisedAchievementMixin",
     "client.PromisedLandFallMixin",
+    "client.ScreenCreateWorldDefaultMixin",
     "client.SkyColorMixin",
     "client.TextureManagerAnimationAuditMixin",
     "client.TextureManagerPortalMixin",
     "client.TexturePackDefaultPackedMixin",
     "client.TexturePackListBridgeMixin",
     "client.TexturePackPackedMixin",
-    "client.TextureRegistryPackedMixin"
+    "client.TextureRegistryPackedMixin",
+    "client.WorldTypeButtonDefaultMixin"
   ],
   "server": [
-    "server.MinecraftServerDimensionMixin"
+    "server.MinecraftServerDimensionMixin",
+    "server.MinecraftServerWorldTypeMixin"
   ]
 }

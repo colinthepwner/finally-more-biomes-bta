@@ -26,6 +26,8 @@ import net.minecraft.core.world.season.Season;
 import net.minecraft.core.world.season.SeasonManager;
 import net.minecraft.core.world.season.SeasonManagerCycle;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScreenCreateWorld;
+import net.minecraft.client.gui.worldsettings.WorldTypeButtonComponent;
 import net.minecraft.client.gui.ScreenMainMenu;
 import net.minecraft.client.gui.ScreenPause;
 import net.minecraft.client.gui.achievements.ScreenAchievements;
@@ -1084,10 +1086,31 @@ final class AgentController {
 	private void screen(Minecraft mc, long id, JsonObject command) {
 		String which = command.has("screen") ? command.get("screen").getAsString() : "none";
 		if (!which.equals("none") && !which.equals("inventory") && !which.equals("mob_spawning")
-			&& !which.equals("achievements") && !which.equals("guidebook")) {
+			&& !which.equals("achievements") && !which.equals("guidebook")
+			&& !which.equals("create_world")) {
 			fail(id, "unknown screen '" + which
-				+ "'; expected \"inventory\", \"achievements\", \"mob_spawning\", \"guidebook\" "
-				+ "or \"none\"");
+				+ "'; expected \"inventory\", \"achievements\", \"mob_spawning\", \"guidebook\", "
+				+ "\"create_world\" or \"none\"");
+			return;
+		}
+
+		if (which.equals("create_world")) {
+			try {
+				ScreenCreateWorld scr = new ScreenCreateWorld(null);
+				java.lang.reflect.Field f = ScreenCreateWorld.class.getDeclaredField("worldConfiguration");
+				f.setAccessible(true);
+				WorldConfiguration cfg = (WorldConfiguration) f.get(scr);
+				WorldTypeButtonComponent btn = new WorldTypeButtonComponent("gui.world_settings.label.world_type", null);
+				btn.setWorldConfiguration(cfg);
+				JsonObject result = ok(id);
+				result.addProperty("world_type", Registries.WORLD_TYPES.getKey(cfg.getWorldTypeGroup().get(Dimension.OVERWORLD)));
+				result.addProperty("button_default", btn.isDefault());
+				btn.resetValue();
+				result.addProperty("after_reset", Registries.WORLD_TYPES.getKey(cfg.getWorldTypeGroup().get(Dimension.OVERWORLD)));
+				bridge.write(result);
+			} catch (ReflectiveOperationException e) {
+				fail(id, "couldnt read ScreenCreateWorld.worldConfiguration: " + e);
+			}
 			return;
 		}
 

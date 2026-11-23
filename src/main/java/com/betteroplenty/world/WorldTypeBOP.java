@@ -42,6 +42,8 @@ public class WorldTypeBOP extends WorldTypeOverworld {
 
 	private static boolean groupPublished = false;
 
+	public static WorldTypeGroups.Group default_group;
+
 	public WorldTypeBOP(WorldType.Properties properties) {
 		this(properties, false);
 	}
@@ -177,6 +179,7 @@ public class WorldTypeBOP extends WorldTypeOverworld {
 				group.with(dimension, type);
 			}
 			WorldTypeGroups.GROUPS.add(group);
+			if (overworld == BOP) default_group = group;
 		}
 		groupPublished = true;
 
